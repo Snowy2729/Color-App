@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-// Resend, alan adı doğrulanana kadar yalnızca hesap sahibinin adresine
-// gönderime izin verir. vpxagent.com resend.com/domains adresinden
-// doğrulandığında burayı ve `from` adresini güncelleyin.
-const SUPPORT_INBOX = 'myusuforskiran@gmail.com';
+const SUPPORT_INBOX = 'yusuf@vpxagent.com';
 
 export async function POST(req: Request) {
   try {
@@ -16,7 +13,7 @@ export async function POST(req: Request) {
     }
 
     const { data, error } = await resend.emails.send({
-      from: 'Aura Photo Booth <onboarding@resend.dev>',
+      from: 'Aura Photo Booth <destek@vpxagent.com>',
       to: [SUPPORT_INBOX],
       ...(replyTo ? { replyTo } : {}),
       subject,
