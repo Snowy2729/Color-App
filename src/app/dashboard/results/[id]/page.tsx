@@ -4,7 +4,7 @@ import { use, useEffect, useState, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Loader2, Copy, CheckCircle2, ChevronLeft, Download, Share2, Lock, Sparkles, Plus, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { toPng } from 'html-to-image';
 
 interface Palette {
@@ -256,7 +256,7 @@ export default function ResultsPage() {
   const makeupColors = palettes.filter(p => p.category === 'makeup').slice(0, 5);
   const hairColors = palettes.filter(p => p.category === 'hair').slice(0, 5);
 
-  const containerVariants: any = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -264,7 +264,7 @@ export default function ResultsPage() {
     }
   };
 
-  const itemVariants: any = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
   };
