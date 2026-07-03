@@ -1,27 +1,67 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Mail, Send } from 'lucide-react';
+import { Mail, Send, ArrowLeft } from 'lucide-react';
+
+const SUPPORT_EMAIL = 'yusuf@vpxagent.com';
 
 export default function SupportPage() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate API call for mail
-    setTimeout(() => {
-      setLoading(false);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: SUPPORT_EMAIL,
+          replyTo: email,
+          subject: `[Destek] ${subject} — ${firstName} ${lastName}`,
+          text: `İsim: ${firstName} ${lastName}\nE-posta: ${email}\n\n${message}`,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || 'Mesaj gönderilemedi');
+      }
+
       setSent(true);
-    }, 1500);
+      setFirstName('');
+      setLastName('');
+      setEmail('');
+      setSubject('');
+      setMessage('');
+    } catch (err: any) {
+      setError(err.message || 'Mesaj gönderilemedi. Lütfen doğrudan e-posta adresimize yazın.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-transparent py-24 px-6 relative z-10 flex flex-col items-center justify-center">
+      <div className="max-w-2xl w-full mb-6">
+        <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft className="w-4 h-4" />
+          Ana Sayfaya Dön
+        </Link>
+      </div>
       <div className="max-w-2xl w-full bg-card border border-border p-8 md:p-12 rounded-3xl shadow-2xl backdrop-blur-md">
-        
+
         <div className="flex flex-col items-center text-center mb-10">
           <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-4">
             <Mail className="w-8 h-8 text-primary" />
@@ -31,7 +71,7 @@ export default function SupportPage() {
           </h1>
           <p className="text-muted-foreground text-lg">
             Sorunlarınızı veya önerilerinizi doğrudan bize iletin. <br />
-            Doğrudan e-posta: <a href="mailto:yusuf@vpxagent.com" className="text-primary hover:underline font-medium">yusuf@vpxagent.com</a>
+            Doğrudan e-posta: <a href={`mailto:${SUPPORT_EMAIL}`} className="text-primary hover:underline font-medium">{SUPPORT_EMAIL}</a>
           </p>
         </div>
 
@@ -39,7 +79,7 @@ export default function SupportPage() {
           <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-8 text-center">
             <h3 className="text-xl font-semibold text-emerald-500 mb-2">Talebiniz Alındı!</h3>
             <p className="text-emerald-500/80">
-              Mesajınız yusuf@vpxagent.com adresine başarıyla iletildi. En kısa sürede size dönüş yapacağız.
+              Mesajınız {SUPPORT_EMAIL} adresine başarıyla iletildi. En kısa sürede size dönüş yapacağız.
             </p>
             <Button onClick={() => setSent(false)} variant="outline" className="mt-6 border-border text-foreground hover:bg-accent">
               Yeni Mesaj Gönder
@@ -47,21 +87,30 @@ export default function SupportPage() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-sm text-red-500 font-medium">
+                {error}
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">İsim</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   required
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
                   className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                   placeholder="Adınız"
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">Soyisim</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   required
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
                   className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                   placeholder="Soyadınız"
                 />
@@ -70,9 +119,11 @@ export default function SupportPage() {
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">E-posta Adresiniz</label>
-              <input 
-                type="email" 
+              <input
+                type="email"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                 placeholder="ornek@mail.com"
               />
@@ -80,9 +131,11 @@ export default function SupportPage() {
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">Konu Başlığı</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 required
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
                 className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                 placeholder="Hangi konuda destek istiyorsunuz?"
               />
@@ -90,16 +143,18 @@ export default function SupportPage() {
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">Mesajınız</label>
-              <textarea 
+              <textarea
                 required
                 rows={5}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
                 className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all resize-none"
                 placeholder="Lütfen detayları buraya yazın..."
               ></textarea>
             </div>
 
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={loading}
               className="w-full h-14 bg-primary hover:bg-primary/80 text-white rounded-xl font-semibold text-lg flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/20"
             >

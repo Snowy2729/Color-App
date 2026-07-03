@@ -1,6 +1,15 @@
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
+
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-transparent py-24 px-6 relative z-10 flex flex-col items-center">
+      <div className="max-w-3xl w-full mb-6">
+        <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft className="w-4 h-4" />
+          Ana Sayfaya Dön
+        </Link>
+      </div>
       <div className="max-w-3xl w-full bg-card border border-border p-8 md:p-12 rounded-3xl shadow-2xl backdrop-blur-md">
         <h1 className="text-3xl md:text-5xl font-semibold mb-8 text-foreground tracking-tight">Gizlilik Politikası</h1>
         

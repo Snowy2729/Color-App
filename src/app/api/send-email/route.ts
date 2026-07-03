@@ -4,7 +4,7 @@ import { Resend } from 'resend';
 export async function POST(req: Request) {
   try {
     const resend = new Resend(process.env.RESEND_API_KEY || 'dummy_key');
-    const { email, subject, text, html } = await req.json();
+    const { email, subject, text, html, replyTo } = await req.json();
 
     if (!email) {
       return NextResponse.json({ error: 'E-posta adresi gerekli' }, { status: 400 });
@@ -13,6 +13,7 @@ export async function POST(req: Request) {
     const data = await resend.emails.send({
       from: 'Aura Analyzer <onboarding@resend.dev>',
       to: [email],
+      ...(replyTo ? { replyTo } : {}),
       subject: subject || 'Aura Analyzer\'dan Merhaba!',
       text: text || 'Aura Analyzer sistemine hoş geldiniz.',
       html: html || '<p>Aura Analyzer sistemine hoş geldiniz.</p>'

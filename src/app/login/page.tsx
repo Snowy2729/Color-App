@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Sparkles, Mail, Lock } from 'lucide-react';
+import { Loader2, Sparkles, Mail, Lock, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -17,9 +18,32 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [needsVerification, setNeedsVerification] = useState(false);
-  
+  const [resetSent, setResetSent] = useState(false);
+
   const router = useRouter();
   const supabase = createClient();
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setError('Şifre sıfırlama bağlantısı için önce e-posta adresinizi yazın.');
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    setResetSent(false);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/callback?next=/auth/update-password`,
+      });
+      if (error) throw error;
+      setResetSent(true);
+    } catch (err: any) {
+      setError(err.message || 'Şifre sıfırlama bağlantısı gönderilemedi');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +95,13 @@ export default function LoginPage() {
       <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-200/50 rounded-full blur-3xl opacity-50 mix-blend-multiply pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-md p-6">
-        <motion.div 
+        <div className="mb-6">
+          <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="w-4 h-4" />
+            Ana Sayfaya Dön
+          </Link>
+        </div>
+        <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 text-center flex flex-col items-center"
@@ -113,6 +143,12 @@ export default function LoginPage() {
                     {error}
                   </div>
                 )}
+
+                {resetSent && (
+                  <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-600 text-sm font-medium">
+                    Şifre sıfırlama bağlantısı <strong>{email}</strong> adresine gönderildi. E-postanızı kontrol edin.
+                  </div>
+                )}
                 
                 {needsVerification ? (
                   <div className="flex flex-col items-center justify-center space-y-4 py-8 text-center">
@@ -146,9 +182,13 @@ export default function LoginPage() {
                       <div className="flex items-center justify-between">
                         <Label htmlFor="password" className="text-sm font-medium text-foreground">Şifre</Label>
                         {isLogin && (
-                          <a href="#" className="text-xs text-purple-600 hover:text-purple-700 font-medium transition-colors">
+                          <button
+                            type="button"
+                            onClick={handleForgotPassword}
+                            className="text-xs text-purple-600 hover:text-purple-700 font-medium transition-colors focus:outline-none"
+                          >
                             Şifremi unuttum
-                          </a>
+                          </button>
                         )}
                       </div>
                       <div className="relative">
