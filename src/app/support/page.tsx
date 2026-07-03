@@ -27,7 +27,6 @@ export default function SupportPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: SUPPORT_EMAIL,
           replyTo: email,
           subject: `[Destek] ${subject} — ${firstName} ${lastName}`,
           text: `İsim: ${firstName} ${lastName}\nE-posta: ${email}\n\n${message}`,
@@ -79,7 +78,7 @@ export default function SupportPage() {
           <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-8 text-center">
             <h3 className="text-xl font-semibold text-emerald-500 mb-2">Talebiniz Alındı!</h3>
             <p className="text-emerald-500/80">
-              Mesajınız {SUPPORT_EMAIL} adresine başarıyla iletildi. En kısa sürede size dönüş yapacağız.
+              Mesajınız destek ekibimize başarıyla iletildi. En kısa sürede size dönüş yapacağız.
             </p>
             <Button onClick={() => setSent(false)} variant="outline" className="mt-6 border-border text-foreground hover:bg-accent">
               Yeni Mesaj Gönder

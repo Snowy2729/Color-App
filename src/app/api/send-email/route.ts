@@ -1,25 +1,35 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
+// Resend, alan adı doğrulanana kadar yalnızca hesap sahibinin adresine
+// gönderime izin verir. vpxagent.com resend.com/domains adresinden
+// doğrulandığında burayı ve `from` adresini güncelleyin.
+const SUPPORT_INBOX = 'myusuforskiran@gmail.com';
+
 export async function POST(req: Request) {
   try {
     const resend = new Resend(process.env.RESEND_API_KEY || 'dummy_key');
-    const { email, subject, text, html, replyTo } = await req.json();
+    const { subject, text, html, replyTo } = await req.json();
 
-    if (!email) {
-      return NextResponse.json({ error: 'E-posta adresi gerekli' }, { status: 400 });
+    if (!subject || !(text || html)) {
+      return NextResponse.json({ error: 'Konu ve mesaj gerekli' }, { status: 400 });
     }
 
-    const data = await resend.emails.send({
+    const { data, error } = await resend.emails.send({
       from: 'Aura Analyzer <onboarding@resend.dev>',
-      to: [email],
+      to: [SUPPORT_INBOX],
       ...(replyTo ? { replyTo } : {}),
-      subject: subject || 'Aura Analyzer\'dan Merhaba!',
-      text: text || 'Aura Analyzer sistemine hoş geldiniz.',
-      html: html || '<p>Aura Analyzer sistemine hoş geldiniz.</p>'
+      subject,
+      text: text || '',
+      ...(html ? { html } : {})
     });
 
-    return NextResponse.json({ success: true, data });
+    if (error) {
+      console.error('Resend Error:', error);
+      return NextResponse.json({ error: error.message || 'E-posta gönderilemedi' }, { status: 502 });
+    }
+
+    return NextResponse.json({ success: true, id: data?.id });
   } catch (error: any) {
     console.error('Resend Error:', error);
     return NextResponse.json({ error: error.message || 'E-posta gönderilemedi' }, { status: 500 });
