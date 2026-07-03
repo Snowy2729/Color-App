@@ -47,6 +47,12 @@ export default function ResultsPage() {
   const [stylistError, setStylistError] = useState<string | null>(null);
   const [stylistHistory, setStylistHistory] = useState<any[]>([]);
 
+  // Chat States
+  const [activeTab, setActiveTab] = useState<'color' | 'chat'>('color');
+  const [chatQuery, setChatQuery] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatHistory, setChatHistory] = useState<{role: string, content: string}[]>([]);
+
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -152,6 +158,32 @@ export default function ResultsPage() {
       setStylistError(err.message || 'Yapay zekaya bağlanılamadı.');
     } finally {
       setStylistLoading(false);
+    }
+  };
+
+  const handleAskChat = async () => {
+    if (!chatQuery.trim()) return;
+    
+    const userMessage = chatQuery.trim();
+    setChatQuery('');
+    setChatHistory(prev => [...prev, { role: 'user', content: userMessage }]);
+    setChatLoading(true);
+
+    try {
+      const res = await fetch('/api/ask-stylist-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ analysisId: id, query: userMessage })
+      });
+      const data = await res.json();
+      
+      if (!data.success) throw new Error(data.error);
+      
+      setChatHistory(prev => [...prev, { role: 'ai', content: data.reply }]);
+    } catch (err: any) {
+      setChatHistory(prev => [...prev, { role: 'ai', content: 'Üzgünüm, şu an bağlantı kuramıyorum. Lütfen tekrar deneyin.' }]);
+    } finally {
+      setChatLoading(false);
     }
   };
 
@@ -437,49 +469,67 @@ export default function ResultsPage() {
             <Sparkles className="w-8 h-8 text-pink-400" />
             <h2 className="text-3xl font-serif text-foreground">Yapay Zeka Stil Danışmanı</h2>
           </div>
-          <p className="text-muted-foreground mb-8">
-            Kendi seçtiğin renklerin sana yakışıp yakışmayacağını merak mı ediyorsun? Aşağıdan 1 ila 3 arasında renk seç (Combo oluştur) ve AI Stilist'e sor!
-          </p>
           
-          <div className="flex flex-wrap items-end gap-6 mb-8">
-            {customColors.map((color, idx) => (
-              <div key={idx} className="flex flex-col items-center gap-3 relative group">
-                <label className="text-sm text-muted-foreground font-medium">Renk {idx + 1}</label>
-                <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-border group-hover:border-gray-300 transition-all shadow-2xl hover:scale-105 cursor-pointer flex items-center justify-center bg-black">
-                  <input 
-                    type="color" 
-                    value={color}
-                    onChange={(e) => {
-                      const newColors = [...customColors];
-                      newColors[idx] = e.target.value;
-                      setCustomColors(newColors);
-                    }}
-                    className="w-32 h-32 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer bg-transparent border-0 p-0"
-                    style={{ WebkitAppearance: 'none' }}
-                  />
-                  <div className="absolute inset-0 pointer-events-none rounded-full" style={{ backgroundColor: color }}></div>
-                </div>
-                {customColors.length > 1 && (
+          <div className="flex border-b border-white/10 mb-8">
+            <button 
+              onClick={() => setActiveTab('color')}
+              className={`px-6 py-3 font-medium text-lg border-b-2 transition-all ${activeTab === 'color' ? 'border-pink-500 text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+            >
+              Renk Kombini Test Et
+            </button>
+            <button 
+              onClick={() => setActiveTab('chat')}
+              className={`px-6 py-3 font-medium text-lg border-b-2 transition-all ${activeTab === 'chat' ? 'border-pink-500 text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+            >
+              Asistana Soru Sor
+            </button>
+          </div>
+
+          {activeTab === 'color' ? (
+            <>
+              <p className="text-muted-foreground mb-8">
+                Kendi seçtiğin renklerin sana yakışıp yakışmayacağını merak mı ediyorsun? Aşağıdan 1 ila 3 arasında renk seç (Combo oluştur) ve AI Stilist'e sor!
+              </p>
+              
+              <div className="flex flex-wrap items-end gap-6 mb-8">
+                {customColors.map((color, idx) => (
+                  <div key={idx} className="flex flex-col items-center gap-3 relative group">
+                    <label className="text-sm text-muted-foreground font-medium">Renk {idx + 1}</label>
+                    <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-border group-hover:border-gray-300 transition-all shadow-2xl hover:scale-105 cursor-pointer flex items-center justify-center bg-black">
+                      <input 
+                        type="color" 
+                        value={color}
+                        onChange={(e) => {
+                          const newColors = [...customColors];
+                          newColors[idx] = e.target.value;
+                          setCustomColors(newColors);
+                        }}
+                        className="w-32 h-32 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer bg-transparent border-0 p-0"
+                        style={{ WebkitAppearance: 'none' }}
+                      />
+                      <div className="absolute inset-0 pointer-events-none rounded-full" style={{ backgroundColor: color }}></div>
+                    </div>
+                    {customColors.length > 1 && (
+                      <button 
+                        onClick={() => setCustomColors(customColors.filter((_, i) => i !== idx))}
+                        className="absolute -top-1 -right-4 bg-red-500 hover:bg-red-600 text-foreground rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                    <span className="text-sm font-mono text-muted-foreground bg-card px-3 py-1 rounded-full">{color.toUpperCase()}</span>
+                  </div>
+                ))}
+                
+                {customColors.length < 3 && (
                   <button 
-                    onClick={() => setCustomColors(customColors.filter((_, i) => i !== idx))}
-                    className="absolute -top-1 -right-4 bg-red-500 hover:bg-red-600 text-foreground rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
+                    onClick={() => setCustomColors([...customColors, '#ffffff'])}
+                    className="w-24 h-24 rounded-full border-2 border-dashed border-border hover:border-white/40 hover:bg-accent hover:text-accent-foreground flex flex-col items-center justify-center gap-1 transition-all mb-[38px] text-muted-foreground hover:text-foreground"
                   >
-                    <X className="w-4 h-4" />
+                    <Plus className="w-8 h-8" />
                   </button>
                 )}
-                <span className="text-sm font-mono text-muted-foreground bg-card px-3 py-1 rounded-full">{color.toUpperCase()}</span>
               </div>
-            ))}
-            
-            {customColors.length < 3 && (
-              <button 
-                onClick={() => setCustomColors([...customColors, '#ffffff'])}
-                className="w-24 h-24 rounded-full border-2 border-dashed border-border hover:border-white/40 hover:bg-accent hover:text-accent-foreground flex flex-col items-center justify-center gap-1 transition-all mb-[38px] text-muted-foreground hover:text-foreground"
-              >
-                <Plus className="w-8 h-8" />
-              </button>
-            )}
-          </div>
 
           <Button 
             onClick={handleAskStylist} 
@@ -580,7 +630,63 @@ export default function ResultsPage() {
               </div>
             </div>
           )}
+          </>
+          ) : (
+            <div className="flex flex-col gap-6">
+              <p className="text-muted-foreground">
+                Kıyafet, renk kombinleri, stil tavsiyeleri veya makyaj tonları hakkında yapay zeka stil danışmanınıza istediğiniz her şeyi sorabilirsiniz!
+              </p>
+              
+              <div className="bg-black/40 border border-white/5 rounded-3xl p-6 min-h-[300px] max-h-[500px] overflow-y-auto flex flex-col gap-4">
+                {chatHistory.length === 0 ? (
+                  <div className="flex-1 flex flex-col items-center justify-center text-center opacity-50">
+                    <Sparkles className="w-12 h-12 mb-4" />
+                    <p>Sohbeti başlatmak için bir soru sorun.</p>
+                    <p className="text-sm mt-2">Örn: "Mezuniyet balosu için ne renk elbise giymeliyim?"</p>
+                  </div>
+                ) : (
+                  chatHistory.map((msg, idx) => (
+                    <div key={idx} className={`flex flex-col gap-1 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                      <div className={`p-4 rounded-2xl max-w-[85%] text-sm md:text-base border ${
+                        msg.role === 'user' 
+                          ? 'bg-white/10 text-white rounded-tr-sm border-white/5' 
+                          : 'bg-pink-500/20 text-white rounded-tl-sm border-pink-500/30'
+                      }`}>
+                        {msg.content}
+                      </div>
+                    </div>
+                  ))
+                )}
+                {chatLoading && (
+                  <div className="flex items-start gap-2">
+                    <div className="bg-pink-500/20 text-white p-4 rounded-2xl rounded-tl-sm border border-pink-500/30 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce delay-75"></div>
+                      <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce delay-150"></div>
+                    </div>
+                  </div>
+                )}
+              </div>
 
+              <div className="flex gap-3">
+                <input
+                  type="text"
+                  value={chatQuery}
+                  onChange={(e) => setChatQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAskChat()}
+                  placeholder="Bana stil ile ilgili bir soru sor..."
+                  className="flex-1 bg-black/50 border border-border rounded-full px-6 py-4 text-foreground focus:outline-none focus:border-pink-500/50 transition-colors"
+                />
+                <Button 
+                  onClick={handleAskChat}
+                  disabled={chatLoading || !chatQuery.trim()}
+                  className="w-14 h-14 rounded-full bg-pink-500 hover:bg-pink-600 flex items-center justify-center shadow-lg shadow-pink-500/20 shrink-0 p-0"
+                >
+                  <Plus className="w-6 h-6 text-white rotate-45" style={{ transform: 'rotate(0deg)' }} /> 
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </motion.div>
 
