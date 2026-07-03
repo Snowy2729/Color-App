@@ -54,7 +54,7 @@ export default function UpdatePasswordPage() {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary mb-4">
             <Sparkles className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-3xl font-semibold text-foreground mb-2 tracking-tight">Aura Analyzer</h1>
+          <h1 className="text-3xl font-semibold text-foreground mb-2 tracking-tight">Aura Photo Booth</h1>
         </div>
 
         <Card className="border-border bg-card shadow-xl shadow-slate-200/50 rounded-2xl overflow-hidden">

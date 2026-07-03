@@ -20,7 +20,7 @@ export default function PrivacyPage() {
 
           <h2 className="text-xl font-medium text-foreground mt-8 mb-4">1. Toplanan Veriler</h2>
           <p>
-            Aura Analyzer olarak, sunduğumuz yapay zeka destekli renk analizi hizmetini en iyi şekilde gerçekleştirebilmek için 
+            Aura Photo Booth olarak, sunduğumuz yapay zeka destekli renk analizi hizmetini en iyi şekilde gerçekleştirebilmek için 
             kullanıcılarımızın yüklediği fotoğrafları, e-posta adreslerini ve kullanım istatistiklerini geçici veya kalıcı olarak saklayabiliriz. 
             Yüklediğiniz fotoğraflar sadece analiz amacıyla kullanılır ve 3. parti izinsiz kişilerle paylaşılmaz.
           </p>

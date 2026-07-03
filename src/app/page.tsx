@@ -20,7 +20,7 @@ export default function Home() {
         <Sparkles className="w-10 h-10 text-white" />
       </motion.div>
       <h1 className="text-6xl md:text-8xl font-semibold tracking-tight text-foreground mb-6">
-        Aura Analyzer
+        Aura Photo Booth
       </h1>
       <p className="text-xl md:text-3xl text-muted-foreground font-light mb-8 max-w-2xl">
         Yapay zeka ile kişisel renk paletinizi saniyeler içinde keşfedin. Sadece size özel olan renklerle parlayın.

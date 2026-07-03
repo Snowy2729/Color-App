@@ -20,7 +20,7 @@ export default function TermsPage() {
 
           <h2 className="text-xl font-medium text-foreground mt-8 mb-4">1. Hizmetin Kapsamı</h2>
           <p>
-            Aura Analyzer, kullanıcıların yüz hatlarını ve cilt/saç renklerini yapay zeka aracılığıyla analiz ederek kişisel paletler 
+            Aura Photo Booth, kullanıcıların yüz hatlarını ve cilt/saç renklerini yapay zeka aracılığıyla analiz ederek kişisel paletler 
             ve stil tavsiyeleri sunan bir platformdur. Sunulan analizler tavsiye niteliğinde olup kesinlik veya profesyonel medikal 
             bir geçerlilik taşımaz.
           </p>
@@ -40,7 +40,7 @@ export default function TermsPage() {
 
           <h2 className="text-xl font-medium text-foreground mt-8 mb-4">4. Hizmet Değişiklikleri</h2>
           <p>
-            Aura Analyzer, sistem algoritmalarında, fiyatlandırmasında ve kullanım koşullarında önceden haber vermeksizin 
+            Aura Photo Booth, sistem algoritmalarında, fiyatlandırmasında ve kullanım koşullarında önceden haber vermeksizin 
             değişiklik yapma hakkını saklı tutar. Önemli güncellemeler kayıtlı e-posta adresinize bildirilir.
           </p>
         </div>

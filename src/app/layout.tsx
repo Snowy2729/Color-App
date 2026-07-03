@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aura Analyzer | Yapay Zeka ile Kişisel Renk Analizi",
+  title: "Aura Photo Booth | Yapay Zeka ile Kişisel Renk Analizi",
   description:
     "Fotoğrafınızı yükleyin, yapay zeka cilt tonunuza ve yüz hatlarınıza göre kişisel renk paletinizi, kombin ve makyaj önerilerinizi saniyeler içinde çıkarsın.",
 };

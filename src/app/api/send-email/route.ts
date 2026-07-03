@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     }
 
     const { data, error } = await resend.emails.send({
-      from: 'Aura Analyzer <onboarding@resend.dev>',
+      from: 'Aura Photo Booth <onboarding@resend.dev>',
       to: [SUPPORT_INBOX],
       ...(replyTo ? { replyTo } : {}),
       subject,

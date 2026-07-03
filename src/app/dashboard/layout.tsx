@@ -26,7 +26,7 @@ export default async function DashboardLayout({
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white ">
             <Sparkles className="w-4 h-4" />
           </div>
-          <span className="font-semibold text-lg tracking-tight text-foreground">Aura Analyzer</span>
+          <span className="font-semibold text-lg tracking-tight text-foreground">Aura Photo Booth</span>
         </div>
         
         <nav className="flex-1 px-4 space-y-1 mt-4">

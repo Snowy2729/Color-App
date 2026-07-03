@@ -219,7 +219,7 @@ export default function ResultsPage() {
 
       // İndir
       const link = document.createElement('a');
-      link.download = `Aura-Analyzer-Paletim.png`;
+      link.download = `Aura-Photo-Booth-Paletim.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
@@ -412,7 +412,7 @@ export default function ResultsPage() {
             <span className="text-4xl">✨</span>
           </div>
           <h1 className="text-7xl font-serif text-foreground tracking-tight">Kişisel Renk Paletim</h1>
-          <p className="text-3xl text-muted-foreground font-light">Aura Analyzer AI tarafından analiz edildi</p>
+          <p className="text-3xl text-muted-foreground font-light">Aura Photo Booth AI tarafından analiz edildi</p>
         </div>
 
         <div className="relative z-10 w-full flex-1 flex flex-col justify-center gap-12 mt-20">
@@ -453,10 +453,10 @@ export default function ResultsPage() {
         </div>
 
         <div className="relative z-10 w-full pb-12 mt-12 flex justify-between items-center border-t border-border pt-12">
-          <p className="text-3xl text-muted-foreground font-serif">aura-analyzer.com</p>
+          <p className="text-3xl text-muted-foreground font-serif">auraphotobooth.com</p>
           <div className="text-right">
             <p className="text-xl text-muted-foreground">Sen de kendi renklerini bul</p>
-            <p className="text-3xl text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 font-bold">@auraanalyzer</p>
+            <p className="text-3xl text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 font-bold">@auraphotobooth</p>
           </div>
         </div>
       </div>

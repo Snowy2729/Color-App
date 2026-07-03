@@ -110,7 +110,7 @@ export default function LoginPage() {
             <Sparkles className="w-6 h-6 text-white" />
           </div>
           <h1 className="text-3xl font-semibold text-foreground mb-2 tracking-tight">
-            Aura Analyzer
+            Aura Photo Booth
           </h1>
           <p className="text-muted-foreground text-sm">Kişisel renk paletinizi keşfedin</p>
         </motion.div>

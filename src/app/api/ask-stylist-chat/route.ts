@@ -38,7 +38,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Analiz bulunamadı' }, { status: 404 });
     }
 
-    const systemPrompt = `Sen Aura Analyzer'ın uzman bir renk ve moda stil danışmanısın. İnsanlara dürüst, yapıcı ve bilimsel (mevsim analizine dayalı) stil tavsiyeleri verirsin.
+    const systemPrompt = `Sen Aura Photo Booth'ın uzman bir renk ve moda stil danışmanısın. İnsanlara dürüst, yapıcı ve bilimsel (mevsim analizine dayalı) stil tavsiyeleri verirsin.
 KULLANICI PROFİLİ:
 - Mevsim Tipi: ${analysis.season_type}
 - Cilt Alt Tonu: ${analysis.undertone}
