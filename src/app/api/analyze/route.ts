@@ -8,13 +8,13 @@ const anthropic = new Anthropic({
 });
 
 // Admin client for bypassing RLS to read private storage
-const supabaseAdmin = createSupabaseClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 export async function POST(req: Request) {
   try {
+    const supabaseAdmin = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co',
+      process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy'
+    );
+
     const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
 

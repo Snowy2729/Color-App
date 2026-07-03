@@ -1,18 +1,22 @@
 import { NextResponse } from 'next/server';
 import { ApifyClient } from 'apify-client';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
-
-const client = new ApifyClient({
-    token: process.env.APIFY_API_KEY,
-});
-
-const supabaseAdmin = createSupabaseClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import Anthropic from '@anthropic-ai/sdk';
 
 export async function POST(req: Request) {
   try {
+    const supabaseAdmin = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co',
+      process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy'
+    );
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY || 'dummy_key',
+    });
+
+    const client = new ApifyClient({
+      token: process.env.APIFY_API_KEY,
+    });
+
     const { analysisId, seasonType } = await req.json();
 
     if (!analysisId || !seasonType) {
