@@ -45,7 +45,7 @@ export async function POST(req: Request) {
       maxItems: 3,
       excludePinnedPosts: true,
       shouldDownloadVideos: false,
-      shouldDownloadCovers: true
+      shouldDownloadCovers: false
     });
 
     // Sonuçları alıyoruz

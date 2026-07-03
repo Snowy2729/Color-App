@@ -27,25 +27,32 @@ export async function POST(req: Request) {
     }
 
     // 1. Analizi veritabanından çek
-    const { data: analysis, error: fetchError } = await supabaseAdmin
+    const { data: analysis, error: analysisError } = await supabase
       .from('analyses')
       .select('*')
       .eq('id', analysisId)
-      .eq('user_id', user.id)
       .single();
 
-    if (fetchError || !analysis) {
+    if (analysisError || !analysis) {
       return NextResponse.json({ error: 'Analiz bulunamadı' }, { status: 404 });
     }
 
-    // Zaten palet üretilmiş mi kontrol et
-    const { data: existingPalettes } = await supabaseAdmin
+    const { data: subscription } = await supabase
+      .from('subscriptions')
+      .select('status')
+      .eq('user_id', analysis.user_id)
+      .single();
+
+    const isSubscribed = subscription?.status === 'active' || subscription?.status === 'trialing';
+
+    // Eğer önceden üretilmiş paletler varsa onları döndür
+    const { data: existingPalettes } = await supabase
       .from('palettes')
       .select('*')
       .eq('analysis_id', analysisId);
 
     if (existingPalettes && existingPalettes.length > 0) {
-      return NextResponse.json({ success: true, palettes: existingPalettes, analysis });
+      return NextResponse.json({ success: true, analysis, palettes: existingPalettes, isSubscribed });
     }
 
     // 2. Claude'dan palet üretmesini iste
@@ -105,7 +112,7 @@ Cevabını SADECE aşağıdaki JSON formatında ver, başka hiçbir kelime eklem
       return NextResponse.json({ error: 'Paletler kaydedilemedi' }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, palettes: insertedPalettes, analysis });
+    return NextResponse.json({ success: true, palettes: insertedPalettes, analysis, isSubscribed });
 
   } catch (error: any) {
     console.error('API Error:', error);

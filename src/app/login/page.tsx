@@ -7,12 +7,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Sparkles, Mail, Lock, KeyRound } from 'lucide-react';
+import { Loader2, Sparkles, Mail, Lock } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [otpCode, setOtpCode] = useState('');
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,18 +28,6 @@ export default function LoginPage() {
 
     try {
       if (needsVerification) {
-        // E-posta doğrulama (OTP) adımı
-        const { error } = await supabase.auth.verifyOtp({
-          email,
-          token: otpCode,
-          type: 'signup'
-        });
-        
-        if (error) throw error;
-        
-        // Doğrulama başarılı, dashboard'a yönlendir
-        router.push('/dashboard');
-        router.refresh();
         return;
       }
 
@@ -52,14 +40,21 @@ export default function LoginPage() {
         router.push('/dashboard');
         router.refresh();
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+          }
         });
         if (error) throw error;
         
-        // Kayıt başarılı olduğunda kodu girmesi için ekranı değiştir
-        setNeedsVerification(true);
+        if (data.session) {
+          router.push('/dashboard');
+          router.refresh();
+        } else {
+          setNeedsVerification(true);
+        }
       }
     } catch (err: any) {
       setError(err.message || 'Bir hata oluştu');
@@ -69,139 +64,155 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center overflow-hidden bg-zinc-950">
-      {/* Premium Background Effects */}
-      <div className="absolute inset-0 w-full h-full bg-zinc-950 [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
+    <div className="min-h-screen relative flex items-center justify-center overflow-hidden bg-transparent">
       
-      {/* Animated Gradient Orbs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl opacity-50 animate-pulse transition-all duration-1000 mix-blend-screen"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl opacity-50 animate-pulse transition-all duration-1000 mix-blend-screen delay-700"></div>
+      {/* 21st.dev style abstract background shapes */}
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-purple-200/50 rounded-full blur-3xl opacity-50 mix-blend-multiply pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-200/50 rounded-full blur-3xl opacity-50 mix-blend-multiply pointer-events-none" />
 
-      {/* Main Content */}
       <div className="relative z-10 w-full max-w-md p-6">
-        <div className="mb-8 text-center flex flex-col items-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-tr from-purple-500 to-pink-500 mb-4 shadow-xl shadow-purple-500/20">
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8 text-center flex flex-col items-center"
+        >
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary mb-4 ">
             <Sparkles className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-3xl font-serif text-white mb-2 tracking-tight">
-            Aura <span className="text-zinc-400 font-sans font-light">Analyzer</span>
+          <h1 className="text-3xl font-semibold text-foreground mb-2 tracking-tight">
+            Aura Analyzer
           </h1>
-          <p className="text-zinc-400 text-sm">Kişisel renk paletinizi keşfedin</p>
-        </div>
+          <p className="text-muted-foreground text-sm">Kişisel renk paletinizi keşfedin</p>
+        </motion.div>
 
-        <Card className="border-white/10 bg-black/40 backdrop-blur-xl shadow-2xl">
-          <CardHeader className="space-y-1 pb-6">
-            <CardTitle className="text-xl font-medium text-white tracking-tight">
-              {needsVerification 
-                ? 'E-postanızı Doğrulayın' 
-                : isLogin ? 'Hesabınıza Giriş Yapın' : 'Yeni Hesap Oluşturun'}
-            </CardTitle>
-            <CardDescription className="text-zinc-400">
-              {needsVerification
-                ? `${email} adresine gönderilen 6 haneli kodu girin.`
-                : isLogin 
-                  ? 'Renk profilinize erişmek için e-posta ve şifrenizi girin.'
-                  : 'Kişisel analizlerinizi kaydetmek için ücretsiz kayıt olun.'}
-            </CardDescription>
-          </CardHeader>
-          
-          <form onSubmit={handleAuth}>
-            <CardContent className="space-y-4">
-              {error && (
-                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-                  {error}
-                </div>
-              )}
-              
-              {needsVerification ? (
-                <div className="space-y-2">
-                  <Label htmlFor="otp" className="text-zinc-300">Doğrulama Kodu</Label>
-                  <div className="relative">
-                    <KeyRound className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
-                    <Input 
-                      id="otp" 
-                      type="text" 
-                      placeholder="123456" 
-                      required 
-                      maxLength={6}
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value)}
-                      className="pl-9 bg-white/5 border-white/10 text-white tracking-widest text-center text-lg focus-visible:ring-purple-500"
-                    />
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-zinc-300">E-posta adresi</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
-                      <Input 
-                        id="email" 
-                        type="email" 
-                        placeholder="ornek@email.com" 
-                        required 
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-zinc-500 focus-visible:ring-purple-500"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="password" className="text-zinc-300">Şifre</Label>
-                      {isLogin && (
-                        <a href="#" className="text-xs text-purple-400 hover:text-purple-300 transition-colors">
-                          Şifremi unuttum
-                        </a>
-                      )}
-                    </div>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
-                      <Input 
-                        id="password" 
-                        type="password" 
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="pl-9 bg-white/5 border-white/10 text-white focus-visible:ring-purple-500"
-                      />
-                    </div>
-                  </div>
-                </>
-              )}
-            </CardContent>
-            
-            <CardFooter className="flex flex-col space-y-4 pt-2">
-              <Button 
-                type="submit" 
-                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0 shadow-lg shadow-purple-500/25 transition-all duration-300"
-                disabled={loading}
-              >
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Card className="border-border bg-card shadow-xl shadow-slate-200/50 rounded-2xl overflow-hidden">
+            <CardHeader className="space-y-1 pb-6 pt-8 px-8 border-b border-gray-50">
+              <CardTitle className="text-xl font-semibold text-foreground tracking-tight">
                 {needsVerification 
-                  ? 'Kodu Doğrula' 
-                  : isLogin ? 'Giriş Yap' : 'Kayıt Ol'}
-              </Button>
+                  ? 'E-postanızı Doğrulayın' 
+                  : isLogin ? 'Hesabınıza Giriş Yapın' : 'Yeni Hesap Oluşturun'}
+              </CardTitle>
+              <CardDescription className="text-muted-foreground text-sm">
+                {needsVerification
+                  ? `${email} adresine gönderilen linke tıklayın.`
+                  : isLogin 
+                    ? 'Renk profilinize erişmek için e-posta ve şifrenizi girin.'
+                    : 'Kişisel analizlerinizi kaydetmek için ücretsiz kayıt olun.'}
+              </CardDescription>
+            </CardHeader>
+            
+            <form onSubmit={handleAuth}>
+              <CardContent className="space-y-4 px-8 pt-6">
+                {error && (
+                  <div className="p-3 rounded-lg bg-red-50 border border-red-100 text-red-600 text-sm font-medium">
+                    {error}
+                  </div>
+                )}
+                
+                {needsVerification ? (
+                  <div className="flex flex-col items-center justify-center space-y-4 py-8 text-center">
+                    <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mb-2 border border-purple-100">
+                      <Mail className="w-8 h-8 text-purple-600" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground">E-postanızı Kontrol Edin</h3>
+                    <p className="text-muted-foreground text-sm max-w-xs mx-auto">
+                      <strong>{email}</strong> adresine bir onay bağlantısı gönderdik. Lütfen e-postanızı açın ve içerikteki linke tıklayın.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-sm font-medium text-foreground">E-posta adresi</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          id="email" 
+                          type="email" 
+                          placeholder="ornek@email.com" 
+                          required 
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="pl-9 h-11 bg-transparent border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-purple-600 focus-visible:border-purple-600 rounded-xl transition-all"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="password" className="text-sm font-medium text-foreground">Şifre</Label>
+                        {isLogin && (
+                          <a href="#" className="text-xs text-purple-600 hover:text-purple-700 font-medium transition-colors">
+                            Şifremi unuttum
+                          </a>
+                        )}
+                      </div>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          id="password" 
+                          type="password" 
+                          required
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="pl-9 h-11 bg-transparent border-border text-foreground focus-visible:ring-purple-600 focus-visible:border-purple-600 rounded-xl transition-all"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+              </CardContent>
               
-              {!needsVerification && (
-                <div className="text-center text-sm text-zinc-400">
-                  {isLogin ? 'Hesabınız yok mu?' : 'Zaten hesabınız var mı?'}
-                  <button 
-                    type="button"
-                    onClick={() => setIsLogin(!isLogin)}
-                    className="ml-1 text-purple-400 hover:text-purple-300 hover:underline transition-colors focus:outline-none"
+              <CardFooter className="flex flex-col space-y-4 px-8 pb-8 pt-4">
+                {needsVerification ? (
+                  <Button 
+                    type="button" 
+                    onClick={() => {
+                      setNeedsVerification(false);
+                      setIsLogin(true);
+                    }}
+                    variant="outline"
+                    className="w-full h-11 rounded-xl border-border text-foreground hover:bg-transparent hover:text-foreground font-semibold"
                   >
-                    {isLogin ? 'Şimdi oluşturun' : 'Giriş yapın'}
-                  </button>
-                </div>
-              )}
-            </CardFooter>
-          </form>
-        </Card>
+                    Giriş Sayfasına Dön
+                  </Button>
+                ) : (
+                  <Button 
+                    type="submit" 
+                    className="w-full h-11 rounded-xl bg-primary hover:bg-primary/80 text-white font-semibold  transition-all"
+                    disabled={loading}
+                  >
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isLogin ? 'Giriş Yap' : 'Kayıt Ol'}
+                  </Button>
+                )}
+                
+                {!needsVerification && (
+                  <div className="text-center text-sm text-muted-foreground">
+                    {isLogin ? 'Hesabınız yok mu?' : 'Zaten hesabınız var mı?'}
+                    <button 
+                      type="button"
+                      onClick={() => setIsLogin(!isLogin)}
+                      className="ml-1 font-semibold text-purple-600 hover:text-purple-700 transition-colors focus:outline-none"
+                    >
+                      {isLogin ? 'Şimdi oluşturun' : 'Giriş yapın'}
+                    </button>
+                  </div>
+                )}
+                {needsVerification && (
+                   <div className="text-center text-xs font-medium text-muted-foreground mt-2">
+                     Onayladıktan sonra sayfayı yenileyebilirsiniz.
+                   </div>
+                )}
+              </CardFooter>
+            </form>
+          </Card>
+        </motion.div>
       </div>
     </div>
   );
 }
-
