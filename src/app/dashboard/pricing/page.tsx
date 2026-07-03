@@ -1,35 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Sparkles, Zap, ArrowRight, Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 
 export default function PricingPage() {
   const [loadingType, setLoadingType] = useState<'monthly' | 'yearly' | null>(null);
-  const router = useRouter();
+  const [checkoutSuccess, setCheckoutSuccess] = useState(false);
 
-  const handleSubscribe = async (planType: 'monthly' | 'yearly') => {
-    setLoadingType(planType);
-    try {
-      const res = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planType })
-      });
-      const data = await res.json();
-      
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error(data.error || 'Ödeme sayfası oluşturulamadı');
-      }
-    } catch (error) {
-      console.error(error);
-      alert('Stripe ayarları eksik veya bir hata oluştu.');
-      setLoadingType(null);
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('checkout') === 'success') {
+      setCheckoutSuccess(true);
     }
+  }, []);
+
+  const handleSubscribe = (planType: 'monthly' | 'yearly') => {
+    setLoadingType(planType);
+    window.location.href = `/api/polar/checkout?plan=${planType}`;
   };
 
   const features = [
@@ -43,7 +31,16 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen bg-transparent py-12 px-4 relative overflow-hidden flex flex-col items-center">
       <div className="max-w-4xl mx-auto relative z-10 w-full">
-        
+
+        {checkoutSuccess && (
+          <div className="max-w-2xl mx-auto mb-10 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-6 text-center">
+            <h3 className="text-lg font-semibold text-emerald-500 mb-1">Aboneliğiniz başlatıldı! 🎉</h3>
+            <p className="text-emerald-500/80 text-sm">
+              Premium özellikleriniz birkaç saniye içinde aktifleşir. İyi analizler!
+            </p>
+          </div>
+        )}
+
         <div className="text-center mb-16 space-y-4">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -85,7 +82,7 @@ export default function PricingPage() {
             </div>
             
             <div className="mb-8 flex items-baseline gap-1">
-              <span className="text-4xl font-bold text-foreground">$39</span>
+              <span className="text-4xl font-bold text-foreground">$39.99</span>
               <span className="text-muted-foreground font-medium">/ay</span>
             </div>
 
@@ -127,16 +124,16 @@ export default function PricingPage() {
 
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-foreground mb-1">Yıllık Plan</h3>
-              <p className="text-muted-foreground text-sm">Uzun vadeli stil yatırımı. %78 tasarruf edin!</p>
+              <p className="text-muted-foreground text-sm">Uzun vadeli stil yatırımı. %81 tasarruf edin!</p>
             </div>
-            
+
             <div className="mb-8 flex flex-col">
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-bold text-foreground">$99</span>
+                <span className="text-4xl font-bold text-foreground">$89.90</span>
                 <span className="text-muted-foreground font-medium">/yıl</span>
               </div>
               <div className="flex flex-col mt-2">
-                <span className="text-sm text-emerald-600 font-semibold">Aylık sadece ~8.25$'a gelir</span>
+                <span className="text-sm text-emerald-600 font-semibold">Aylık sadece ~7.49$'a gelir</span>
                 <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 w-fit px-2.5 py-1 rounded-md mt-2 font-bold tracking-wide flex items-center gap-1">
                   🎁 7 GÜN ÜCRETSİZ DENEME
                 </span>
@@ -166,6 +163,15 @@ export default function PricingPage() {
               )}
             </Button>
           </motion.div>
+        </div>
+
+        <div className="text-center mt-10">
+          <a
+            href="/api/polar/portal"
+            className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors"
+          >
+            Mevcut aboneliğinizi yönetin (iptal, kart değişikliği, faturalar)
+          </a>
         </div>
       </div>
     </div>

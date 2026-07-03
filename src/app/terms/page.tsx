@@ -33,7 +33,7 @@ export default function TermsPage() {
 
           <h2 className="text-xl font-medium text-foreground mt-8 mb-4">3. Premium Üyelik ve İptal</h2>
           <p>
-            Platformumuz aylık veya yıllık abonelik modelleri sunar (Aylık $39 / Yıllık $99). Kullanıcı dilediği zaman 
+            Platformumuz aylık veya yıllık abonelik modelleri sunar (Aylık $39.99 / Yıllık $89.90). Kullanıcı dilediği zaman 
             ayarlarından aboneliğini iptal edebilir. 7 günlük ücretsiz deneme (Trial) süresi içinde iptal edilmeyen yıllık 
             abonelikler faturalandırılır. İptal edilen abonelikler, geçerli dönemin sonuna kadar kullanılmaya devam eder.
           </p>
