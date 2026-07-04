@@ -16,12 +16,12 @@ export async function DELETE(
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const analysisId = resolvedParams.id;
 
-    // Önce analizi çekelim ki fotoğraf yolunu bilelim
+    // Fetch the analysis first so we know the photo path
     const { data: analysis, error: fetchError } = await supabaseAdmin
       .from('analyses')
       .select('photo_storage_path')
@@ -30,17 +30,17 @@ export async function DELETE(
       .single();
 
     if (fetchError || !analysis) {
-      return NextResponse.json({ error: 'Analiz bulunamadı veya silme yetkiniz yok' }, { status: 404 });
+      return NextResponse.json({ error: 'Analysis not found or you are not allowed to delete it' }, { status: 404 });
     }
 
-    // 1. Storage'dan Fotoğrafı Sil
+    // 1. Delete the photo from storage
     if (analysis.photo_storage_path) {
       await supabaseAdmin.storage
         .from('photos')
         .remove([analysis.photo_storage_path]);
     }
 
-    // 2. Veritabanından Analizi Sil (ON DELETE CASCADE olduğu için palette'ler de otomatik silinir)
+    // 2. Delete the analysis from the database (palettes cascade via ON DELETE CASCADE)
     const { error: deleteError } = await supabaseAdmin
       .from('analyses')
       .delete()
@@ -53,7 +53,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('Silme hatası:', error);
-    return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
+    console.error('Delete error:', error);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

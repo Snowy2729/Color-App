@@ -22,7 +22,7 @@ export default async function HistoryPage() {
     console.error('Error fetching analyses:', fetchError);
   }
 
-  // Fotoğrafların signed URL'lerini al
+  // Fetch signed URLs for the photos
   const analysesWithUrls = await Promise.all(
     (analyses || []).map(async (analysis) => {
       const { data } = await supabase.storage
@@ -39,8 +39,8 @@ export default async function HistoryPage() {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
-        <h1 className="text-4xl font-serif text-foreground mb-2">Geçmiş Analizlerim</h1>
-        <p className="text-muted-foreground">Önceden yaptığınız tüm renk ve mevsim analizleriniz burada listelenir.</p>
+        <h1 className="text-4xl font-serif text-foreground mb-2">My Analysis History</h1>
+        <p className="text-muted-foreground">All of your previous color and season analyses are listed here.</p>
       </div>
 
       {analysesWithUrls.length === 0 ? (
@@ -48,12 +48,12 @@ export default async function HistoryPage() {
           <div className="w-16 h-16 rounded-full bg-transparent flex items-center justify-center mb-4">
             <Clock className="w-8 h-8 text-muted-foreground" />
           </div>
-          <h3 className="text-xl font-medium text-foreground mb-2">Henüz analiz bulunmuyor</h3>
+          <h3 className="text-xl font-medium text-foreground mb-2">No analyses yet</h3>
           <p className="text-muted-foreground text-center max-w-sm mb-6">
-            Yapay zeka ile kişisel renk analizinizi yapmak için yeni bir fotoğraf yükleyin.
+            Upload a new photo to get your AI-powered personal color analysis.
           </p>
           <Link href="/dashboard" className="px-6 py-3 rounded-full bg-card text-black font-medium hover:bg-zinc-200 transition-colors">
-            Yeni Analiz Başlat
+            Start a New Analysis
           </Link>
         </div>
       ) : (
@@ -70,7 +70,7 @@ export default async function HistoryPage() {
                 {analysis.photoUrl ? (
                   <img 
                     src={analysis.photoUrl} 
-                    alt="Analiz fotoğrafı" 
+                    alt="Analysis photo"
                     className="object-cover w-full h-full opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
                   />
                 ) : (
@@ -85,12 +85,12 @@ export default async function HistoryPage() {
                   <div className="flex items-end justify-between">
                     <div>
                       <p className="text-sm text-purple-400 font-medium mb-1">
-                        {new Date(analysis.created_at).toLocaleDateString('tr-TR', { 
-                          day: 'numeric', month: 'long', year: 'numeric' 
+                        {new Date(analysis.created_at).toLocaleDateString('en-US', {
+                          day: 'numeric', month: 'long', year: 'numeric'
                         })}
                       </p>
                       <h3 className="text-2xl font-serif text-foreground group-hover:text-pink-100 transition-colors">
-                        {analysis.season_type || 'Analiz Ediliyor...'}
+                        {analysis.season_type || 'Analyzing...'}
                       </h3>
                     </div>
                     <div className="w-10 h-10 rounded-full bg-slate-100 backdrop-blur-md flex items-center justify-center group-hover:bg-card group-hover:text-black transition-all">

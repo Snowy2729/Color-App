@@ -9,22 +9,22 @@ export default function DeleteButton({ id }: { id: string }) {
   const router = useRouter();
 
   const handleDelete = async (e: React.MouseEvent) => {
-    e.preventDefault(); // Link'e tıklamayı engelle
-    
-    if (!confirm('Bu analizi silmek istediğinize emin misiniz?')) return;
-    
+    e.preventDefault(); // Prevent the parent link click
+
+    if (!confirm('Are you sure you want to delete this analysis?')) return;
+
     setIsDeleting(true);
     try {
       const res = await fetch(`/api/analyses/${id}`, {
         method: 'DELETE',
       });
-      
-      if (!res.ok) throw new Error('Silme başarısız');
-      
+
+      if (!res.ok) throw new Error('Delete failed');
+
       router.refresh();
     } catch (err) {
       console.error(err);
-      alert('Hata oluştu');
+      alert('Something went wrong');
       setIsDeleting(false);
     }
   };

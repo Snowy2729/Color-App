@@ -53,7 +53,7 @@ export default function DashboardPage() {
     
     try {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) throw new Error('Oturum açmanız gerekiyor.');
+      if (authError || !user) throw new Error('You need to sign in.');
 
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(7)}.${fileExt}`;
@@ -74,14 +74,14 @@ export default function DashboardPage() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Analiz sırasında bir hata oluştu.');
+        throw new Error(result.error || 'An error occurred during the analysis.');
       }
 
       router.push(`/dashboard/results/${result.analysisId}`);
-      
+
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Bir hata oluştu. Lütfen tekrar deneyin.');
+      setError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -90,8 +90,8 @@ export default function DashboardPage() {
   return (
     <div className="w-full max-w-3xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="space-y-2">
-        <h1 className="text-3xl font-semibold text-foreground tracking-tight">Yeni Analiz Başlat</h1>
-        <p className="text-muted-foreground">Yapay zeka ile kişisel renk analizinizi yapmak için net bir fotoğrafınızı yükleyin veya hemen çekin.</p>
+        <h1 className="text-3xl font-semibold text-foreground tracking-tight">Start a New Analysis</h1>
+        <p className="text-muted-foreground">Upload a clear photo or take one right now to get your AI-powered personal color analysis.</p>
       </div>
 
       {error && (
@@ -104,11 +104,11 @@ export default function DashboardPage() {
       <div className="w-full p-4 rounded-xl bg-blue-50 border border-blue-100 flex items-start gap-3 text-blue-800 ">
         <Info className="w-5 h-5 shrink-0 mt-0.5 text-blue-500" />
         <div className="text-sm space-y-1">
-          <p className="font-semibold text-blue-900">En iyi sonuç için ipuçları:</p>
+          <p className="font-semibold text-blue-900">Tips for the best result:</p>
           <ul className="list-disc list-inside text-blue-700/80 pl-1 space-y-0.5">
-            <li>Doğal gün ışığında (pencere karşısında) çekilmiş olmalı</li>
-            <li>Yüzünüzde makyaj olmamalı veya çok hafif olmalı</li>
-            <li>Fotoğraf çok karanlık veya bulanık olmamalı</li>
+            <li>Taken in natural daylight (facing a window)</li>
+            <li>No makeup, or only very light makeup</li>
+            <li>The photo should not be too dark or blurry</li>
           </ul>
         </div>
       </div>
@@ -145,9 +145,9 @@ export default function DashboardPage() {
             <div className="w-20 h-20 rounded-2xl bg-purple-50 border border-purple-100 flex items-center justify-center mb-6">
               <ImageIcon className="w-10 h-10 text-purple-600" />
             </div>
-            <h3 className="text-xl font-semibold text-foreground mb-2">Fotoğraf Yükle</h3>
+            <h3 className="text-xl font-semibold text-foreground mb-2">Upload a Photo</h3>
             <p className="text-sm text-muted-foreground mb-8 max-w-sm">
-              Galerinizden bir fotoğraf seçin veya kameranızı kullanarak hemen yeni bir fotoğraf çekin.
+              Choose a photo from your gallery or take a new one right now using your camera.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
@@ -158,7 +158,7 @@ export default function DashboardPage() {
                 onClick={() => fileInputRef.current?.click()}
               >
                 <UploadCloud className="w-4 h-4 mr-2" />
-                Dosya Seç
+                Choose File
               </Button>
               <Button 
                 type="button" 
@@ -166,7 +166,7 @@ export default function DashboardPage() {
                 onClick={() => setIsCameraOpen(true)}
               >
                 <Camera className="w-4 h-4 mr-2" />
-                Kamerayı Aç
+                Open Camera
               </Button>
             </div>
           </div>
@@ -174,7 +174,7 @@ export default function DashboardPage() {
           <div className="relative">
             <img 
               src={preview} 
-              alt="Selfie Önizleme" 
+              alt="Selfie preview"
               className="w-full h-[500px] object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex flex-col justify-end p-8">
@@ -186,7 +186,7 @@ export default function DashboardPage() {
                   disabled={uploading}
                   className="h-12 rounded-xl bg-card/20 border-white/30 text-white backdrop-blur-md hover:bg-card/30 font-medium"
                 >
-                  Değiştir
+                  Change
                 </Button>
                 <Button 
                   onClick={handleUpload}
@@ -196,12 +196,12 @@ export default function DashboardPage() {
                   {uploading ? (
                     <>
                       <Loader2 className="mr-2 w-5 h-5 animate-spin" />
-                      Yapay Zeka Analiz Ediyor...
+                      AI is Analyzing...
                     </>
                   ) : (
                     <>
                       <Sparkles className="mr-2 w-5 h-5" />
-                      Analizi Başlat
+                      Start Analysis
                     </>
                   )}
                 </Button>

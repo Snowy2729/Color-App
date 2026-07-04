@@ -5,10 +5,10 @@ import Link from 'next/link';
 import { Home, LayoutDashboard, Clock, CreditCard, LogOut, Menu, X, Sparkles } from 'lucide-react';
 
 const links = [
-  { href: '/', label: 'Ana Sayfa', icon: Home },
+  { href: '/', label: 'Home', icon: Home },
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/dashboard/history', label: 'Geçmiş Analizler', icon: Clock },
-  { href: '/dashboard/pricing', label: 'Fiyatlandırma', icon: CreditCard },
+  { href: '/dashboard/history', label: 'Analysis History', icon: Clock },
+  { href: '/dashboard/pricing', label: 'Pricing', icon: CreditCard },
 ];
 
 export default function MobileNav() {
@@ -26,7 +26,7 @@ export default function MobileNav() {
         <button
           onClick={() => setOpen(!open)}
           className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-          aria-label={open ? 'Menüyü kapat' : 'Menüyü aç'}
+          aria-label={open ? 'Close menu' : 'Open menu'}
         >
           {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
@@ -48,7 +48,7 @@ export default function MobileNav() {
           <form action="/auth/signout" method="post">
             <button className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-muted-foreground hover:text-red-500 transition-colors">
               <LogOut className="w-4 h-4" />
-              Çıkış Yap
+              Sign Out
             </button>
           </form>
         </nav>

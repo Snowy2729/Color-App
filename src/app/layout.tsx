@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aura Photo Booth | Yapay Zeka ile Kişisel Renk Analizi",
+  title: "Aura Photo Booth | AI Personal Color Analysis",
   description:
-    "Fotoğrafınızı yükleyin, yapay zeka cilt tonunuza ve yüz hatlarınıza göre kişisel renk paletinizi, kombin ve makyaj önerilerinizi saniyeler içinde çıkarsın.",
+    "Upload your photo and let AI reveal your personal color palette, outfit ideas and makeup recommendations based on your skin tone and facial features — in seconds.",
 };
 
 export default function RootLayout({
@@ -25,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="tr"
+      lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>

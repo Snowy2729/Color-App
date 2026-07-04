@@ -12,6 +12,17 @@ export async function GET(req: Request) {
     }
 
     const url = new URL(req.url);
+
+    // Block double purchases: already subscribed users go back to pricing
+    const { data: existing } = await supabase
+      .from('subscriptions')
+      .select('status')
+      .eq('user_id', user.id)
+      .single();
+
+    if (existing?.status === 'active' || existing?.status === 'trialing') {
+      return NextResponse.redirect(new URL('/dashboard/pricing?already=subscribed', url.origin));
+    }
     const plan = url.searchParams.get('plan') === 'yearly' ? 'yearly' : 'monthly';
     const productId = plan === 'yearly'
       ? process.env.POLAR_PRODUCT_YEARLY
@@ -19,7 +30,7 @@ export async function GET(req: Request) {
     const accessToken = process.env.POLAR_ACCESS_TOKEN;
 
     if (!productId || !accessToken) {
-      return NextResponse.json({ error: 'Ödeme ayarları yapılandırılmamış' }, { status: 500 });
+      return NextResponse.json({ error: 'Payment settings are not configured' }, { status: 500 });
     }
 
     const polar = new Polar({
@@ -40,6 +51,6 @@ export async function GET(req: Request) {
     return NextResponse.redirect(checkout.url);
   } catch (error: any) {
     console.error('Polar Checkout Error:', error);
-    return NextResponse.json({ error: error.message || 'Ödeme sayfası oluşturulamadı' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Could not create the checkout page' }, { status: 500 });
   }
 }

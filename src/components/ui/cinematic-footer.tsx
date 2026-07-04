@@ -211,11 +211,11 @@ MagneticButton.displayName = "MagneticButton";
 // -------------------------------------------------------------------------
 const MarqueeItem = () => (
   <div className="flex items-center space-x-12 px-6">
-    <span>Yapay Zeka Renk Analizi</span> <span className="text-primary/60">✦</span>
-    <span>4 Mevsim Paletleri</span> <span className="text-secondary/60">✦</span>
-    <span>TikTok Trendleri</span> <span className="text-primary/60">✦</span>
-    <span>Kişisel Giyim Önerileri</span> <span className="text-secondary/60">✦</span>
-    <span>Makyaj Sırları</span> <span className="text-primary/60">✦</span>
+    <span>AI Color Analysis</span> <span className="text-primary/60">✦</span>
+    <span>Four Season Palettes</span> <span className="text-secondary/60">✦</span>
+    <span>TikTok Trends</span> <span className="text-primary/60">✦</span>
+    <span>Personal Outfit Ideas</span> <span className="text-secondary/60">✦</span>
+    <span>Makeup Secrets</span> <span className="text-primary/60">✦</span>
   </div>
 );
 
@@ -318,7 +318,7 @@ export function CinematicFooter() {
               ref={headingRef}
               className="text-5xl md:text-8xl font-black footer-text-glow tracking-tighter mb-12 text-center"
             >
-              Renklerini Keşfetmeye Hazır Mısın?
+              Ready to Discover Your Colors?
             </h2>
 
             {/* Interactive Magnetic Pills Layout */}
@@ -329,27 +329,27 @@ export function CinematicFooter() {
                   <svg className="w-6 h-6 text-muted-foreground group-hover:text-foreground transition-colors" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H8l4-7v4h3l-4 7z"/>
                   </svg>
-                  Panele Git
+                  Go to Dashboard
                 </MagneticButton>
                 
                 <MagneticButton as="a" href="/login" className="footer-glass-pill px-10 py-5 rounded-full text-foreground font-bold text-sm md:text-base flex items-center gap-3 group">
                   <svg className="w-6 h-6 text-muted-foreground group-hover:text-foreground transition-colors" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
                   </svg>
-                  Hemen Başla
+                  Get Started
                 </MagneticButton>
               </div>
 
               {/* Secondary Text Links */}
               <div className="flex flex-wrap justify-center gap-3 md:gap-6 w-full mt-2">
                 <MagneticButton as="a" href="/privacy" className="footer-glass-pill px-6 py-3 rounded-full text-muted-foreground font-medium text-xs md:text-sm hover:text-foreground">
-                  Gizlilik Politikası
+                  Privacy Policy
                 </MagneticButton>
                 <MagneticButton as="a" href="/terms" className="footer-glass-pill px-6 py-3 rounded-full text-muted-foreground font-medium text-xs md:text-sm hover:text-foreground">
-                  Kullanım Şartları
+                  Terms of Service
                 </MagneticButton>
                 <MagneticButton as="a" href="/support" className="footer-glass-pill px-6 py-3 rounded-full text-muted-foreground font-medium text-xs md:text-sm hover:text-foreground">
-                  Destek
+                  Support
                 </MagneticButton>
               </div>
             </div>
@@ -360,7 +360,7 @@ export function CinematicFooter() {
             
             {/* Copyright */}
             <div className="text-muted-foreground text-[10px] md:text-xs font-semibold tracking-widest uppercase order-2 md:order-1">
-              © 2026 Aura Photo Booth. Tüm hakları saklıdır.
+              © 2026 Aura Photo Booth. All rights reserved.
             </div>
 
             {/* "Made with Love" Badge */}

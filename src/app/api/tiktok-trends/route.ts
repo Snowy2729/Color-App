@@ -20,17 +20,17 @@ export async function POST(req: Request) {
     const { analysisId, seasonType } = await req.json();
 
     if (!analysisId || !seasonType) {
-      return NextResponse.json({ error: 'Eksik parametre' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing parameter' }, { status: 400 });
     }
 
-    // 1. Veritabanında daha önce kaydedilmiş TikTok videoları var mı diye kontrol et
+    // 1. Check if TikTok videos were previously saved in the database
     const { data: analysis, error: fetchError } = await supabaseAdmin
       .from('analyses')
       .select('tiktok_videos')
       .eq('id', analysisId)
       .single();
 
-    // Eğer cache (önbellek) varsa, saniyeler beklemeden direkt onu döndür!
+    // If there is a cache, return it immediately without waiting!
     if (analysis?.tiktok_videos && Array.isArray(analysis.tiktok_videos) && analysis.tiktok_videos.length > 0) {
       console.log('Returning cached TikTok videos for analysis:', analysisId);
       return NextResponse.json({ success: true, videos: analysis.tiktok_videos });
@@ -38,26 +38,26 @@ export async function POST(req: Request) {
 
     console.log('Fetching new TikTok videos from Apify...');
 
-    // Arama sorgusu oluştur: Örn: "Deep Winter Outfits"
+    // Build the search query, e.g. "Deep Winter Outfits"
     const searchQuery = `${seasonType} outfits`;
 
-    // Apify's clockworks/tiktok-scraper actor'ünü çağırıyoruz
-    // Bu actor hızlı sonuç verir ve hashtag/search destekler.
+    // Call Apify's clockworks/tiktok-scraper actor
+    // It returns results quickly and supports hashtag/search.
     const run = await client.actor("clockworks/tiktok-scraper").call({
       resultsPerPage: 3,
-      hashtags: [searchQuery.replace(/\s+/g, '')], // #DeepWinterOutfits formatında
+      hashtags: [searchQuery.replace(/\s+/g, '')], // #DeepWinterOutfits format
       maxItems: 3,
       excludePinnedPosts: true,
       shouldDownloadVideos: false,
       shouldDownloadCovers: false
     });
 
-    // Sonuçları alıyoruz
+    // Collect the results
     const { items } = await client.dataset(run.defaultDatasetId).listItems();
 
     if (!items || items.length === 0) {
-      // Eğer hashtag olarak bir şey bulamazsa kelime araması yapsın diyebiliriz ama
-      // genelde tiktok scraper hashtag ile çalışır.
+      // We could fall back to a keyword search when the hashtag returns nothing,
+      // but the TikTok scraper generally works with hashtags.
       return NextResponse.json({ success: true, videos: [] });
     }
 
@@ -69,7 +69,7 @@ export async function POST(req: Request) {
       authorMeta: item.authorMeta
     }));
 
-    // 3. Apify'dan başarıyla çekilen videoları veritabanına kaydet (Cache'le)
+    // 3. Cache the videos fetched from Apify in the database
     if (videos.length > 0) {
       await supabaseAdmin
         .from('analyses')
@@ -80,6 +80,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, videos });
   } catch (error: any) {
     console.error('Apify TikTok Scraper Error:', error);
-    return NextResponse.json({ error: 'TikTok verileri çekilemedi' }, { status: 500 });
+    return NextResponse.json({ error: 'Could not fetch TikTok data' }, { status: 500 });
   }
 }

@@ -21,16 +21,16 @@ export async function POST(req: Request) {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { filePath } = await req.json();
 
     if (!filePath) {
-      return NextResponse.json({ error: 'Dosya yolu eksik' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing file path' }, { status: 400 });
     }
 
-    // 1. Supabase Storage'dan dosyayı indir
+    // 1. Download the file from Supabase Storage
     const { data: fileData, error: downloadError } = await supabaseAdmin
       .storage
       .from('photos')
@@ -38,23 +38,23 @@ export async function POST(req: Request) {
 
     if (downloadError || !fileData) {
       console.error('Download error:', downloadError);
-      return NextResponse.json({ error: 'Fotoğraf okunamadı' }, { status: 500 });
+      return NextResponse.json({ error: 'Could not read the photo' }, { status: 500 });
     }
 
-    // 2. Buffer'ı base64'e çevir
+    // 2. Convert the buffer to base64
     const arrayBuffer = await fileData.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     const base64Image = buffer.toString('base64');
-    
-    // Medya tipini bul
+
+    // Detect the media type
     const extension = filePath.split('.').pop()?.toLowerCase();
     const mediaType = extension === 'png' ? 'image/png' : 'image/jpeg';
 
-    // 3. Claude API'sine gönder
+    // 3. Send to the Claude API
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-5',
       max_tokens: 1024,
-      system: 'Sen uzman bir kişisel renk analistisin. Kullanıcının yüzüne bakarak cilt alt tonunu (warm, cool, neutral), kontrastını (high, low) ve 12 mevsim tipinden hangisine ait olduğunu (ör. Deep Autumn, Light Spring) analiz et. SADECE geçerli bir JSON objesi döndür, başka hiçbir metin veya markdown (```json) ekleme.',
+      system: 'You are an expert personal color analyst. Look at the user\'s face and analyze their skin undertone (warm, cool, neutral), contrast (high, low) and which of the 12 season types they belong to (e.g. Deep Autumn, Light Spring). Return ONLY a valid JSON object with no extra text or markdown (```json).',
       messages: [
         {
           role: 'user',
@@ -69,30 +69,30 @@ export async function POST(req: Request) {
             },
             {
               type: 'text',
-              text: 'Bu fotoğrafı analiz et ve sadece şu formatta JSON döndür: {"undertone": "warm|cool|neutral", "contrast": "high|low", "season_type": "Mevsim Tipi"}'
+              text: 'Analyze this photo and return JSON in exactly this format: {"undertone": "warm|cool|neutral", "contrast": "high|low", "season_type": "Season Type"}'
             }
           ]
         }
       ]
     });
 
-    // 4. JSON'ı parse et
+    // 4. Parse the JSON
     const textContent = message.content.find(c => c.type === 'text');
     if (!textContent || textContent.type !== 'text') {
-      throw new Error('Claude boş yanıt döndürdü');
+      throw new Error('Claude returned an empty response');
     }
 
     let analysisResult;
     try {
-      // Bazen Claude JSON'u tag'ler arasına alabilir diye temizliyoruz
+      // Strip markdown fences in case Claude wraps the JSON
       const rawText = textContent.text.replace(/```json/g, '').replace(/```/g, '').trim();
       analysisResult = JSON.parse(rawText);
     } catch (e) {
       console.error('JSON parse error:', textContent.text);
-      return NextResponse.json({ error: 'Yapay zeka analiz sonucu anlaşılamadı' }, { status: 500 });
+      return NextResponse.json({ error: 'Could not understand the AI analysis result' }, { status: 500 });
     }
 
-    // 5. Analizi Veritabanına Kaydet
+    // 5. Save the analysis to the database
     const { data: dbResult, error: dbError } = await supabaseAdmin
       .from('analyses')
       .insert({
@@ -107,13 +107,13 @@ export async function POST(req: Request) {
 
     if (dbError) {
       console.error('DB Insert error:', dbError);
-      return NextResponse.json({ error: 'Analiz kaydedilemedi' }, { status: 500 });
+      return NextResponse.json({ error: 'Could not save the analysis' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, analysisId: dbResult.id, result: analysisResult });
 
   } catch (error: any) {
     console.error('API Route Error:', error);
-    return NextResponse.json({ error: error.message || 'Sunucu hatası' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Server error' }, { status: 500 });
   }
 }

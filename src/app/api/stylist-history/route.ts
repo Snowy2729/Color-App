@@ -7,16 +7,16 @@ export async function POST(req: Request) {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { analysisId } = await req.json();
-    
+
     if (!analysisId) {
-      return NextResponse.json({ error: 'Analiz ID eksik' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing analysis ID' }, { status: 400 });
     }
 
-    // Kullanıcının analize sahip olup olmadığını ve geçmişi getir
+    // Verify ownership of the analysis and fetch the history
     const { data: queries, error } = await supabase
       .from('ai_stylist_queries')
       .select('*')
@@ -25,13 +25,13 @@ export async function POST(req: Request) {
 
     if (error) {
       console.error('History fetch error:', error);
-      return NextResponse.json({ error: 'Geçmiş analizler getirilemedi' }, { status: 500 });
+      return NextResponse.json({ error: 'Could not fetch past checks' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, history: queries || [] });
 
   } catch (error: any) {
     console.error('API Error:', error);
-    return NextResponse.json({ error: error.message || 'Sunucu hatası' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Server error' }, { status: 500 });
   }
 }

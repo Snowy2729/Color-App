@@ -25,7 +25,7 @@ export default function LoginPage() {
 
   const handleForgotPassword = async () => {
     if (!email) {
-      setError('Şifre sıfırlama bağlantısı için önce e-posta adresinizi yazın.');
+      setError('Enter your email address first so we can send a password reset link.');
       return;
     }
     setLoading(true);
@@ -39,7 +39,7 @@ export default function LoginPage() {
       if (error) throw error;
       setResetSent(true);
     } catch (err: any) {
-      setError(err.message || 'Şifre sıfırlama bağlantısı gönderilemedi');
+      setError(err.message || 'Could not send the password reset link');
     } finally {
       setLoading(false);
     }
@@ -81,7 +81,7 @@ export default function LoginPage() {
         }
       }
     } catch (err: any) {
-      setError(err.message || 'Bir hata oluştu');
+      setError(err.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }
@@ -98,7 +98,7 @@ export default function LoginPage() {
         <div className="mb-6">
           <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="w-4 h-4" />
-            Ana Sayfaya Dön
+            Back to Home
           </Link>
         </div>
         <motion.div
@@ -112,7 +112,7 @@ export default function LoginPage() {
           <h1 className="text-3xl font-semibold text-foreground mb-2 tracking-tight">
             Aura Photo Booth
           </h1>
-          <p className="text-muted-foreground text-sm">Kişisel renk paletinizi keşfedin</p>
+          <p className="text-muted-foreground text-sm">Discover your personal color palette</p>
         </motion.div>
 
         <motion.div
@@ -123,16 +123,16 @@ export default function LoginPage() {
           <Card className="border-border bg-card shadow-xl shadow-slate-200/50 rounded-2xl overflow-hidden">
             <CardHeader className="space-y-1 pb-6 pt-8 px-8 border-b border-gray-50">
               <CardTitle className="text-xl font-semibold text-foreground tracking-tight">
-                {needsVerification 
-                  ? 'E-postanızı Doğrulayın' 
-                  : isLogin ? 'Hesabınıza Giriş Yapın' : 'Yeni Hesap Oluşturun'}
+                {needsVerification
+                  ? 'Verify Your Email'
+                  : isLogin ? 'Sign In to Your Account' : 'Create a New Account'}
               </CardTitle>
               <CardDescription className="text-muted-foreground text-sm">
                 {needsVerification
-                  ? `${email} adresine gönderilen linke tıklayın.`
-                  : isLogin 
-                    ? 'Renk profilinize erişmek için e-posta ve şifrenizi girin.'
-                    : 'Kişisel analizlerinizi kaydetmek için ücretsiz kayıt olun.'}
+                  ? `Click the link we sent to ${email}.`
+                  : isLogin
+                    ? 'Enter your email and password to access your color profile.'
+                    : 'Sign up for free to save your personal analyses.'}
               </CardDescription>
             </CardHeader>
             
@@ -146,7 +146,7 @@ export default function LoginPage() {
 
                 {resetSent && (
                   <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-600 text-sm font-medium">
-                    Şifre sıfırlama bağlantısı <strong>{email}</strong> adresine gönderildi. E-postanızı kontrol edin.
+                    A password reset link was sent to <strong>{email}</strong>. Check your inbox.
                   </div>
                 )}
                 
@@ -155,21 +155,21 @@ export default function LoginPage() {
                     <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mb-2 border border-purple-100">
                       <Mail className="w-8 h-8 text-purple-600" />
                     </div>
-                    <h3 className="text-lg font-semibold text-foreground">E-postanızı Kontrol Edin</h3>
+                    <h3 className="text-lg font-semibold text-foreground">Check Your Email</h3>
                     <p className="text-muted-foreground text-sm max-w-xs mx-auto">
-                      <strong>{email}</strong> adresine bir onay bağlantısı gönderdik. Lütfen e-postanızı açın ve içerikteki linke tıklayın.
+                      We sent a confirmation link to <strong>{email}</strong>. Please open your inbox and click the link.
                     </p>
                   </div>
                 ) : (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="text-sm font-medium text-foreground">E-posta adresi</Label>
+                      <Label htmlFor="email" className="text-sm font-medium text-foreground">Email address</Label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          id="email" 
-                          type="email" 
-                          placeholder="ornek@email.com" 
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="you@example.com"
                           required 
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
@@ -180,14 +180,14 @@ export default function LoginPage() {
                     
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="password" className="text-sm font-medium text-foreground">Şifre</Label>
+                        <Label htmlFor="password" className="text-sm font-medium text-foreground">Password</Label>
                         {isLogin && (
                           <button
                             type="button"
                             onClick={handleForgotPassword}
                             className="text-xs text-purple-600 hover:text-purple-700 font-medium transition-colors focus:outline-none"
                           >
-                            Şifremi unuttum
+                            Forgot password?
                           </button>
                         )}
                       </div>
@@ -218,7 +218,7 @@ export default function LoginPage() {
                     variant="outline"
                     className="w-full h-11 rounded-xl border-border text-foreground hover:bg-transparent hover:text-foreground font-semibold"
                   >
-                    Giriş Sayfasına Dön
+                    Back to Sign In
                   </Button>
                 ) : (
                   <Button 
@@ -227,25 +227,25 @@ export default function LoginPage() {
                     disabled={loading}
                   >
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {isLogin ? 'Giriş Yap' : 'Kayıt Ol'}
+                    {isLogin ? 'Sign In' : 'Sign Up'}
                   </Button>
                 )}
                 
                 {!needsVerification && (
                   <div className="text-center text-sm text-muted-foreground">
-                    {isLogin ? 'Hesabınız yok mu?' : 'Zaten hesabınız var mı?'}
-                    <button 
+                    {isLogin ? "Don't have an account?" : 'Already have an account?'}
+                    <button
                       type="button"
                       onClick={() => setIsLogin(!isLogin)}
                       className="ml-1 font-semibold text-purple-600 hover:text-purple-700 transition-colors focus:outline-none"
                     >
-                      {isLogin ? 'Şimdi oluşturun' : 'Giriş yapın'}
+                      {isLogin ? 'Create one now' : 'Sign in'}
                     </button>
                   </div>
                 )}
                 {needsVerification && (
                    <div className="text-center text-xs font-medium text-muted-foreground mt-2">
-                     Onayladıktan sonra sayfayı yenileyebilirsiniz.
+                     After confirming, you can refresh this page.
                    </div>
                 )}
               </CardFooter>

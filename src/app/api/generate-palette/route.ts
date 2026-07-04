@@ -20,15 +20,15 @@ export async function POST(req: Request) {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { analysisId } = await req.json();
     if (!analysisId) {
-      return NextResponse.json({ error: 'Analiz ID eksik' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing analysis ID' }, { status: 400 });
     }
 
-    // 1. Analizi veritabanından çek
+    // 1. Fetch the analysis from the database
     const { data: analysis, error: analysisError } = await supabase
       .from('analyses')
       .select('*')
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
       .single();
 
     if (analysisError || !analysis) {
-      return NextResponse.json({ error: 'Analiz bulunamadı' }, { status: 404 });
+      return NextResponse.json({ error: 'Analysis not found' }, { status: 404 });
     }
 
     const { data: subscription } = await supabase
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
 
     const isSubscribed = subscription?.status === 'active' || subscription?.status === 'trialing';
 
-    // Eğer önceden üretilmiş paletler varsa onları döndür
+    // Return previously generated palettes if they exist
     const { data: existingPalettes } = await supabase
       .from('palettes')
       .select('*')
@@ -57,34 +57,34 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, analysis, palettes: existingPalettes, isSubscribed });
     }
 
-    // 2. Claude'dan palet üretmesini iste
-    const prompt = `Kullanıcının renk analizi sonuçları:
-- Cilt alt tonu: ${analysis.undertone}
-- Kontrast seviyesi: ${analysis.contrast}
-- Mevsim tipi: ${analysis.season_type}
+    // 2. Ask Claude to generate the palette
+    const prompt = `The user's color analysis results:
+- Skin undertone: ${analysis.undertone}
+- Contrast level: ${analysis.contrast}
+- Season type: ${analysis.season_type}
 
-Lütfen bu özelliklere en uygun olan toplam 20 adet renk kodu (HEX formatında) üret. 
-Kategoriler şu şekilde olmalı: 
-- 10 adet "clothing" (kıyafet)
-- 5 adet "makeup" (makyaj)
-- 5 adet "hair" (saç boyası)
+Please generate a total of 20 color codes (in HEX format) that best match these traits.
+The categories must be:
+- 10 "clothing" colors
+- 5 "makeup" colors
+- 5 "hair" (hair dye) colors
 
-Cevabını SADECE aşağıdaki JSON formatında ver, başka hiçbir kelime ekleme:
+Respond ONLY with JSON in exactly this format, no other words:
 [
-  {"category": "clothing", "hex_code": "#XXXXXX", "color_name": "Renk Adı"},
+  {"category": "clothing", "hex_code": "#XXXXXX", "color_name": "Color Name"},
   ...
 ]`;
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-5',
       max_tokens: 1500,
-      system: 'Sen uzman bir renk ve stil danışmanısın. Kullanıcının mevsim tipine uygun muazzam uyumlu renk paletleri üreteceksin.',
+      system: 'You are an expert color and style consultant. You will generate beautifully harmonious color palettes that match the user\'s season type. All color names must be in English.',
       messages: [{ role: 'user', content: prompt }]
     });
 
     const textContent = message.content.find(c => c.type === 'text');
     if (!textContent || textContent.type !== 'text') {
-      throw new Error('Claude boş yanıt döndürdü');
+      throw new Error('Claude returned an empty response');
     }
 
     let paletteData;
@@ -93,10 +93,10 @@ Cevabını SADECE aşağıdaki JSON formatında ver, başka hiçbir kelime eklem
       paletteData = JSON.parse(rawText);
     } catch (e) {
       console.error('JSON parse error:', textContent.text);
-      return NextResponse.json({ error: 'Palet üretilemedi' }, { status: 500 });
+      return NextResponse.json({ error: 'Could not generate the palette' }, { status: 500 });
     }
 
-    // 3. Veritabanına kaydet
+    // 3. Save to the database
     const palettesToInsert = paletteData.map((item: any) => ({
       analysis_id: analysisId,
       category: item.category,
@@ -111,13 +111,13 @@ Cevabını SADECE aşağıdaki JSON formatında ver, başka hiçbir kelime eklem
 
     if (insertError) {
       console.error('Insert error:', insertError);
-      return NextResponse.json({ error: 'Paletler kaydedilemedi' }, { status: 500 });
+      return NextResponse.json({ error: 'Could not save the palettes' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, palettes: insertedPalettes, analysis, isSubscribed });
 
   } catch (error: any) {
     console.error('API Error:', error);
-    return NextResponse.json({ error: error.message || 'Sunucu hatası' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Server error' }, { status: 500 });
   }
 }

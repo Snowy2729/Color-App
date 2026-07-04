@@ -23,10 +23,10 @@ export default function Home() {
         Aura Photo Booth
       </h1>
       <p className="text-xl md:text-3xl text-muted-foreground font-light mb-8 max-w-2xl">
-        Yapay zeka ile kişisel renk paletinizi saniyeler içinde keşfedin. Sadece size özel olan renklerle parlayın.
+        Discover your personal color palette in seconds with AI. Shine in the colors made just for you.
       </p>
       <div className="flex items-center gap-3 text-muted-foreground font-medium">
-        Keşfetmek için aşağı kaydırın <ArrowRight className="w-5 h-5 rotate-90 animate-bounce mt-1" />
+        Scroll down to explore <ArrowRight className="w-5 h-5 rotate-90 animate-bounce mt-1" />
       </div>
     </div>,
 
@@ -34,13 +34,13 @@ export default function Home() {
     <div key="2" className="flex flex-col md:flex-row items-center justify-between w-full max-w-5xl gap-12">
       <div className="flex-1 space-y-6">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 text-purple-700 font-semibold text-sm">
-          <Palette className="w-4 h-4" /> Dört Mevsim Analizi
+          <Palette className="w-4 h-4" /> Four Seasons Analysis
         </div>
         <h2 className="text-4xl md:text-6xl font-semibold text-foreground tracking-tight leading-tight">
-          Sizi En İyi Gösteren <br/> Renkleri Bulun
+          Find the Colors <br/> That Flatter You Most
         </h2>
         <p className="text-lg md:text-xl text-muted-foreground max-w-lg">
-          Cilt alt tonunuz, göz renginiz ve saç renginiz analiz edilerek "Kış, Yaz, İlkbahar veya Sonbahar" paletlerinden hangisine ait olduğunuz belirlenir.
+          Your skin undertone, eye color and hair color are analyzed to determine whether you belong to the "Winter, Summer, Spring or Autumn" palette.
         </p>
       </div>
       <div className="flex-1 w-full relative">
@@ -60,13 +60,13 @@ export default function Home() {
     <div key="3" className="flex flex-col md:flex-row-reverse items-center justify-between w-full max-w-5xl gap-12">
       <div className="flex-1 space-y-6">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-foreground font-semibold text-sm">
-          <PlaySquare className="w-4 h-4 text-pink-500" /> Trend Olun
+          <PlaySquare className="w-4 h-4 text-pink-500" /> Stay on Trend
         </div>
         <h2 className="text-4xl md:text-6xl font-semibold text-foreground tracking-tight leading-tight">
-          TikTok Moda <br/> Trendlerini Yakalayın
+          Catch the Latest <br/> TikTok Fashion Trends
         </h2>
         <p className="text-lg md:text-xl text-muted-foreground max-w-lg">
-          Analiz sonucunuza özel olarak, TikTok'taki en son makyaj ve stil trendleri videoları anında karşınıza gelsin.
+          Get the newest TikTok makeup and style trend videos, hand-picked for your personal analysis result.
         </p>
       </div>
       <div className="flex-1 w-full relative flex justify-center">
@@ -103,11 +103,11 @@ export default function Home() {
           {/* Chat Mockup */}
           <div className="flex flex-col gap-4">
             <div className="bg-white/5 text-foreground p-4 rounded-2xl rounded-tl-sm self-start max-w-[85%] border border-white/5 text-sm md:text-base">
-              Bu akşamki özel davet için hangi renk elbise giymeliyim?
+              What color dress should I wear to tonight's special event?
             </div>
             <div className="bg-primary/20 text-foreground p-4 rounded-2xl rounded-tr-sm self-end max-w-[90%] border border-primary/30 flex gap-3 items-start text-sm md:text-base">
               <Sparkles className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-              <p>Senin "Kış" paletine göre zümrüt yeşili veya saks mavisi bir elbise harika duracaktır. Dudaklarında ise soğuk tonlu bir bordo ruj kullanabilirsin!</p>
+              <p>Based on your "Winter" palette, an emerald green or royal blue dress would look stunning. For your lips, try a cool-toned burgundy lipstick!</p>
             </div>
           </div>
           {/* Input Mockup */}
@@ -122,13 +122,13 @@ export default function Home() {
       </div>
       <div className="flex-1 space-y-6">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-foreground font-semibold text-sm">
-          <Sparkles className="w-4 h-4 text-primary" /> Yapay Zeka Asistanı
+          <Sparkles className="w-4 h-4 text-primary" /> AI Assistant
         </div>
         <h2 className="text-4xl md:text-6xl font-semibold text-foreground tracking-tight leading-tight">
-          Kişisel Stil <br/> Danışmanınız
+          Your Personal <br/> Style Advisor
         </h2>
         <p className="text-lg md:text-xl text-muted-foreground max-w-lg">
-          Paletinize özel makyaj, saç rengi ve giyim kombinleri hakkında merak ettiğiniz her şeyi 7/24 yapay zeka asistanımıza sorabilirsiniz.
+          Ask our AI assistant anything about makeup, hair colors and outfit combinations tailored to your palette — available 24/7.
         </p>
       </div>
     </div>

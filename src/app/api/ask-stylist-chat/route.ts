@@ -18,16 +18,16 @@ export async function POST(req: Request) {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { analysisId, query } = await req.json();
-    
+
     if (!analysisId || !query || query.trim() === '') {
-      return NextResponse.json({ error: 'Lütfen bir soru sorun.' }, { status: 400 });
+      return NextResponse.json({ error: 'Please ask a question.' }, { status: 400 });
     }
 
-    // Analiz detaylarını getir
+    // Fetch the analysis details
     const { data: analysis, error: analysisError } = await supabase
       .from('analyses')
       .select('season_type, undertone, contrast')
@@ -35,25 +35,25 @@ export async function POST(req: Request) {
       .single();
 
     if (analysisError || !analysis) {
-      return NextResponse.json({ error: 'Analiz bulunamadı' }, { status: 404 });
+      return NextResponse.json({ error: 'Analysis not found' }, { status: 404 });
     }
 
-    const systemPrompt = `Sen Aura Photo Booth'ın uzman bir renk ve moda stil danışmanısın. İnsanlara dürüst, yapıcı ve bilimsel (mevsim analizine dayalı) stil tavsiyeleri verirsin.
-KULLANICI PROFİLİ:
-- Mevsim Tipi: ${analysis.season_type}
-- Cilt Alt Tonu: ${analysis.undertone}
-- Kontrast Seviyesi: ${analysis.contrast}
+    const systemPrompt = `You are Aura Photo Booth's expert color and fashion style consultant. You give people honest, constructive and scientific (seasonal-analysis-based) style advice.
+USER PROFILE:
+- Season Type: ${analysis.season_type}
+- Skin Undertone: ${analysis.undertone}
+- Contrast Level: ${analysis.contrast}
 
-ÖNEMLİ REFERANS (Mevsimlere Göre Kurallar):
-- İlkbahar: Kaçınılması gerekenler: Saf siyah, Soğuk pastel. İdeal: Mercan, Şeftali, Sıcak yeşil.
-- Yaz: Kaçınılması gerekenler: Turuncu-sarı, Kiremit. İdeal: Toz gülü, Mürdüm, Lavanta, Gri-mavi.
-- Sonbahar: Kaçınılması gerekenler: Saf beyaz, Soğuk pastel. İdeal: Tuğla, Terracotta, Hardal, Zeytin yeşili.
-- Kış: Kaçınılması gerekenler: Bal rengi, Hardal. İdeal: Saf Siyah, Beyaz, Mavi tabanlı kırmızı, Zümrüt yeşili, Saf Gümüş.
+IMPORTANT REFERENCE (Rules per Season):
+- Spring: Avoid: Pure black, Cool pastels. Ideal: Coral, Peach, Warm green.
+- Summer: Avoid: Orange-yellow, Brick. Ideal: Dusty rose, Plum, Lavender, Gray-blue.
+- Autumn: Avoid: Pure white, Cool pastels. Ideal: Brick, Terracotta, Mustard, Olive green.
+- Winter: Avoid: Honey, Mustard. Ideal: Pure Black, White, Blue-based red, Emerald green, Pure Silver.
 
-ÇOK ÖNEMLİ KURAL: 
-Kullanıcı kıyafet, kombin, renk, stil, giyim veya makyaj tonları HARİCİNDE (örneğin siyaset, yazılım, tıp, günlük haberler vb.) alakalı olmayan bir soru sorarsa KESİNLİKLE CEVAP VERME. Sadece "Üzgünüm, ben bir stil danışmanıyım. Sadece moda, renk paletiniz ve stiliniz hakkında soruları cevaplayabilirim 👗✨" gibi kibar ve eğlenceli bir üslupla reddet. Moda dışı bir konuya asla girme.
+VERY IMPORTANT RULE:
+If the user asks about anything UNRELATED to clothing, outfits, colors, style, fashion or makeup shades (for example politics, software, medicine, daily news, etc.), DO NOT answer it. Politely decline in a fun tone, for example: "Sorry, I'm a style consultant. I can only answer questions about fashion, your color palette and your style 👗✨". Never engage with non-fashion topics.
 
-Kullanıcının sorusuna doğrudan, kısa ve öz (maksimum 3-4 cümle) cevap ver. Kullanıcının profiline uygun önerilerde bulun. Asla markdown kullanma (kalın yazı vs. olabilir ama JSON vs formatlama), doğrudan normal metin olarak yaz.`;
+Answer the user's question directly and concisely (3-4 sentences max). Make recommendations that fit their profile. Reply in the same language the user writes in; default to English. Never use markdown formatting (JSON etc.) — write plain text.`;
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-5',
@@ -64,15 +64,15 @@ Kullanıcının sorusuna doğrudan, kısa ve öz (maksimum 3-4 cümle) cevap ver
 
     const textContent = message.content.find(c => c.type === 'text');
     if (!textContent || textContent.type !== 'text') {
-      throw new Error('Claude boş yanıt döndürdü');
+      throw new Error('Claude returned an empty response');
     }
 
-    // İsterseniz loglamak için DB'ye kaydedilebilir ama şu anlık doğrudan dönelim
-    
+    // Could be logged to the DB later; for now return directly
+
     return NextResponse.json({ success: true, reply: textContent.text });
 
   } catch (error: any) {
     console.error('API Error:', error);
-    return NextResponse.json({ error: error.message || 'Sunucu hatası' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Server error' }, { status: 500 });
   }
 }

@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     const { subject, text, html, replyTo } = await req.json();
 
     if (!subject || !(text || html)) {
-      return NextResponse.json({ error: 'Konu ve mesaj gerekli' }, { status: 400 });
+      return NextResponse.json({ error: 'Subject and message are required' }, { status: 400 });
     }
 
     const { data, error } = await resend.emails.send({
@@ -23,12 +23,12 @@ export async function POST(req: Request) {
 
     if (error) {
       console.error('Resend Error:', error);
-      return NextResponse.json({ error: error.message || 'E-posta gönderilemedi' }, { status: 502 });
+      return NextResponse.json({ error: error.message || 'Could not send the email' }, { status: 502 });
     }
 
     return NextResponse.json({ success: true, id: data?.id });
   } catch (error: any) {
     console.error('Resend Error:', error);
-    return NextResponse.json({ error: error.message || 'E-posta gönderilemedi' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Could not send the email' }, { status: 500 });
   }
 }

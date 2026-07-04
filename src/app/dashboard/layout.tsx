@@ -32,7 +32,7 @@ export default async function DashboardLayout({
         <nav className="flex-1 px-4 space-y-1 mt-4">
           <Link href="/" className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-foreground hover:text-foreground hover:bg-transparent transition-all group">
             <Home className="w-4 h-4 text-muted-foreground group-hover:text-purple-500 transition-colors" />
-            Ana Sayfa
+            Home
           </Link>
           <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-foreground hover:text-foreground hover:bg-transparent transition-all group">
             <LayoutDashboard className="w-4 h-4 text-muted-foreground group-hover:text-purple-500 transition-colors" />
@@ -40,18 +40,18 @@ export default async function DashboardLayout({
           </Link>
           <Link href="/dashboard/history" className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-foreground hover:text-foreground hover:bg-transparent transition-all group">
             <Clock className="w-4 h-4 text-muted-foreground group-hover:text-purple-500 transition-colors" />
-            Geçmiş Analizler
+            Analysis History
           </Link>
           <Link href="/dashboard/pricing" className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-foreground hover:text-foreground hover:bg-transparent transition-all group">
             <CreditCard className="w-4 h-4 text-muted-foreground group-hover:text-purple-500 transition-colors" />
-            Fiyatlandırma
+            Pricing
           </Link>
         </nav>
 
         <div className="p-4 border-t border-border">
           <div className="flex items-center justify-between px-3 py-2">
             <div className="flex flex-col overflow-hidden">
-              <span className="text-sm font-medium text-foreground truncate">Hesabım</span>
+              <span className="text-sm font-medium text-foreground truncate">My Account</span>
               <span className="text-xs text-muted-foreground truncate">{user.email}</span>
             </div>
             <form action="/auth/signout" method="post">

@@ -6,7 +6,7 @@ async function syncSubscription(subscription: any) {
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    console.error('Supabase ortam degiskenleri eksik, webhook islenemedi');
+    console.error('Missing Supabase env vars, webhook not processed');
     return;
   }
 
@@ -15,7 +15,7 @@ async function syncSubscription(subscription: any) {
     : subscription.customer?.externalId;
 
   if (!userId) {
-    console.error('Polar webhook: kullanıcı eşleşmesi bulunamadı', subscription.id);
+    console.error('Polar webhook: no user mapping found', subscription.id);
     return;
   }
 
@@ -37,7 +37,7 @@ async function syncSubscription(subscription: any) {
     }, { onConflict: 'user_id' });
 
   if (error) {
-    console.error('Polar webhook Supabase hatası:', error);
+    console.error('Polar webhook Supabase error:', error);
   }
 }
 

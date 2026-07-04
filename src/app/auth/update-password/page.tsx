@@ -23,11 +23,11 @@ export default function UpdatePasswordPage() {
     setError(null);
 
     if (password.length < 6) {
-      setError('Şifreniz en az 6 karakter olmalı.');
+      setError('Your password must be at least 6 characters.');
       return;
     }
     if (password !== confirmPassword) {
-      setError('Şifreler birbiriyle eşleşmiyor.');
+      setError('The passwords do not match.');
       return;
     }
 
@@ -38,7 +38,7 @@ export default function UpdatePasswordPage() {
       router.push('/dashboard');
       router.refresh();
     } catch (err: any) {
-      setError(err.message || 'Şifre güncellenemedi. Bağlantının süresi dolmuş olabilir, yeniden sıfırlama isteyin.');
+      setError(err.message || 'Could not update the password. The link may have expired — request a new reset email.');
     } finally {
       setLoading(false);
     }
@@ -60,10 +60,10 @@ export default function UpdatePasswordPage() {
         <Card className="border-border bg-card shadow-xl shadow-slate-200/50 rounded-2xl overflow-hidden">
           <CardHeader className="space-y-1 pb-6 pt-8 px-8 border-b border-gray-50">
             <CardTitle className="text-xl font-semibold text-foreground tracking-tight">
-              Yeni Şifrenizi Belirleyin
+              Set Your New Password
             </CardTitle>
             <CardDescription className="text-muted-foreground text-sm">
-              Hesabınız için yeni bir şifre oluşturun.
+              Create a new password for your account.
             </CardDescription>
           </CardHeader>
 
@@ -76,7 +76,7 @@ export default function UpdatePasswordPage() {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-foreground">Yeni Şifre</Label>
+                <Label htmlFor="password" className="text-sm font-medium text-foreground">New Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -91,7 +91,7 @@ export default function UpdatePasswordPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-sm font-medium text-foreground">Yeni Şifre (Tekrar)</Label>
+                <Label htmlFor="confirmPassword" className="text-sm font-medium text-foreground">Confirm New Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -113,7 +113,7 @@ export default function UpdatePasswordPage() {
                 disabled={loading}
               >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Şifreyi Güncelle
+                Update Password
               </Button>
             </CardFooter>
           </form>

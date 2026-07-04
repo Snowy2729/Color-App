@@ -14,9 +14,9 @@ export function FullScreenScrollFx({ children }: FullScreenScrollProps) {
           key={index} 
           className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden"
         >
-          {/* Arka planın üzerine binen katman, altındakini şık bir şekilde kapatır/blurlar */}
+          {/* Overlay layer that elegantly covers/blurs what's underneath */}
           <div className="absolute inset-0 bg-background/95 backdrop-blur-2xl border-t border-white/5">
-            {/* Grid desenini her katmanda tekrar ediyoruz ki süreklilik bozulmasın */}
+            {/* Repeat the grid pattern on every layer so continuity is preserved */}
             <div className="absolute inset-0 pointer-events-none footer-bg-grid opacity-50" />
           </div>
           

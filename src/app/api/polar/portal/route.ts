@@ -8,7 +8,7 @@ export const GET = CustomerPortal({
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      throw new Error('Oturum bulunamadı');
+      throw new Error('No session found');
     }
     return user.id;
   },

@@ -93,7 +93,7 @@ body {
 }
 
 .dark {
-  /* Karanlık tema desteklenmeyecek (Light Mode zorlanacak) */
+  /* Dark theme will not be supported (Light Mode is forced) */
 }
 
 @layer base {

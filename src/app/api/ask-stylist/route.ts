@@ -18,16 +18,16 @@ export async function POST(req: Request) {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { analysisId, colors } = await req.json();
-    
+
     if (!analysisId || !colors || !Array.isArray(colors) || colors.length === 0 || colors.length > 3) {
-      return NextResponse.json({ error: 'Lütfen 1 ile 3 arasında renk seçin' }, { status: 400 });
+      return NextResponse.json({ error: 'Please pick between 1 and 3 colors' }, { status: 400 });
     }
 
-    // Analiz detaylarını getir
+    // Fetch the analysis details
     const { data: analysis, error: analysisError } = await supabase
       .from('analyses')
       .select('season_type, undertone, contrast')
@@ -35,36 +35,36 @@ export async function POST(req: Request) {
       .single();
 
     if (analysisError || !analysis) {
-      return NextResponse.json({ error: 'Analiz bulunamadı' }, { status: 404 });
+      return NextResponse.json({ error: 'Analysis not found' }, { status: 404 });
     }
 
-    const prompt = `Kullanıcının renk analizi profili:
-- Mevsim Tipi: ${analysis.season_type}
-- Cilt Alt Tonu: ${analysis.undertone}
-- Kontrast Seviyesi: ${analysis.contrast}
+    const prompt = `The user's color analysis profile:
+- Season Type: ${analysis.season_type}
+- Skin Undertone: ${analysis.undertone}
+- Contrast Level: ${analysis.contrast}
 
-ÖNEMLİ REFERANS (Mevsimlere Göre Kurallar):
-- İlkbahar (Sıcak/Açık): Kaçınılması gerekenler: Saf siyah (#101010), Soğuk pastel (#E8D9E4). İdeal renkler: Mercan, Şeftali, Sıcak yeşil.
-- Yaz (Soğuk/Açık): Kaçınılması gerekenler: Turuncu-sarı (#F2A623), Kiremit (#B5541F). İdeal renkler: Toz gülü, Mürdüm, Lavanta, Gri-mavi.
-- Sonbahar (Sıcak/Koyu): Kaçınılması gerekenler: Saf beyaz (#F5F5F5), Soğuk pastel (#C9B8D8). İdeal renkler: Tuğla, Terracotta, Hardal, Zeytin yeşili.
-- Kış (Soğuk/Koyu): Kaçınılması gerekenler: Bal rengi (#C98A3D), Hardal (#8A6D2F). İdeal renkler: Saf Siyah, Beyaz, Mavi tabanlı kırmızı, Zümrüt yeşili, Saf Gümüş.
+IMPORTANT REFERENCE (Rules per Season):
+- Spring (Warm/Light): Avoid: Pure black (#101010), Cool pastels (#E8D9E4). Ideal colors: Coral, Peach, Warm green.
+- Summer (Cool/Light): Avoid: Orange-yellow (#F2A623), Brick (#B5541F). Ideal colors: Dusty rose, Plum, Lavender, Gray-blue.
+- Autumn (Warm/Deep): Avoid: Pure white (#F5F5F5), Cool pastels (#C9B8D8). Ideal colors: Brick, Terracotta, Mustard, Olive green.
+- Winter (Cool/Deep): Avoid: Honey (#C98A3D), Mustard (#8A6D2F). Ideal colors: Pure Black, White, Blue-based red, Emerald green, Pure Silver.
 
-Kullanıcı şu renklerin kendisine yakışıp yakışmadığını soruyor (HEX kodları):
+The user is asking whether these colors suit them (HEX codes):
 ${colors.join(', ')}
 
-Lütfen bu renkleri yukarıdaki referans kurallarına ve kullanıcının profiline göre teker teker ve kombo olarak değerlendir. 
-Özellikle "Kaçınılması gerekenler" listesindeki bir renge benziyorsa kesinlikle uyar ve o rengin değiştirilmesini söyle.
-Eğer renklerden biri veya birkaçı bu mevsim tipine uygun değilse, onun yerine bu komboyu tamamlayacak daha uygun alternatif bir rengin HEX kodunu (referans kurallarından veya teoriden) öner.
+Please evaluate these colors one by one and as a combo, based on the reference rules above and the user's profile.
+If a color resembles one on the "Avoid" list, make sure to warn about it and say it should be replaced.
+If one or more colors don't fit this season type, suggest a better alternative HEX code (from the reference rules or color theory) that completes the combo.
 
-Cevabını SADECE aşağıdaki JSON formatında ver, başka hiçbir kelime veya açıklama ekleme:
+Respond ONLY with JSON in exactly this format, no other words or explanations:
 {
-  "overallSuitability": boolean, // Genel olarak bu kombo yakışır mı? (true/false)
-  "feedback": "Mevsim tipine göre bu renk kombinasyonunun neden yakıştığı veya yakışmadığı hakkında Türkçe detaylı ama kısa bir değerlendirme metni. Örneğin: 'Kırmızı ve siyah sana çok yakışıyor ancak seçtiğin sarı tonu seni soluk gösterebilir.'",
+  "overallSuitability": boolean, // Does this combo generally suit them? (true/false)
+  "feedback": "A detailed but concise assessment in English of why this color combination does or doesn't suit them based on their season type. For example: 'Red and black look great on you, but the yellow shade you picked may wash you out.'",
   "suggestions": [
     {
-      "badColor": "#XXXXXX", // Değiştirilmesini önerdiğin rengin orijinal HEX kodu (uyumluysa boş bırakılabilir)
-      "suggestedColor": "#YYYYYY", // Önerdiğin yeni rengin HEX kodu
-      "reason": "Neden bu rengi önerdin? (Türkçe)"
+      "badColor": "#XXXXXX", // The original HEX code of the color you suggest replacing (can be empty if it's fine)
+      "suggestedColor": "#YYYYYY", // The HEX code of the new color you suggest
+      "reason": "Why did you suggest this color? (in English)"
     }
   ]
 }`;
@@ -72,19 +72,19 @@ Cevabını SADECE aşağıdaki JSON formatında ver, başka hiçbir kelime veya 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-5',
       max_tokens: 4000,
-      system: 'Sen uzman bir renk ve moda stil danışmanısın. İnsanlara dürüst, yapıcı ve bilimsel (mevsim analizine dayalı) stil tavsiyeleri verirsin.',
+      system: 'You are an expert color and fashion style consultant. You give people honest, constructive and scientific (seasonal-analysis-based) style advice.',
       messages: [{ role: 'user', content: prompt }]
     });
 
     const textContent = message.content.find(c => c.type === 'text');
     if (!textContent || textContent.type !== 'text') {
-      throw new Error('Claude boş yanıt döndürdü');
+      throw new Error('Claude returned an empty response');
     }
 
     let responseData;
     try {
       let rawText = textContent.text.trim();
-      // JSON bloğunu metnin içinden regex ile ayıkla
+      // Extract the JSON block from the text with a regex
       const match = rawText.match(/\{[\s\S]*\}/);
       if (match) {
         rawText = match[0];
@@ -92,10 +92,10 @@ Cevabını SADECE aşağıdaki JSON formatında ver, başka hiçbir kelime veya 
       responseData = JSON.parse(rawText);
     } catch (e) {
       console.error('JSON parse error:', textContent.text);
-      return NextResponse.json({ error: 'AI yanıtı işlenemedi' }, { status: 500 });
+      return NextResponse.json({ error: 'Could not process the AI response' }, { status: 500 });
     }
 
-    // Veritabanına kaydet
+    // Save to the database
     const { error: insertError } = await supabaseAdmin
       .from('ai_stylist_queries')
       .insert({
@@ -107,13 +107,13 @@ Cevabını SADECE aşağıdaki JSON formatında ver, başka hiçbir kelime veya 
       });
 
     if (insertError) {
-      console.error('AI analizi kaydedilirken hata oluştu:', insertError);
+      console.error('Error while saving the AI analysis:', insertError);
     }
 
     return NextResponse.json({ success: true, result: responseData });
 
   } catch (error: any) {
     console.error('API Error:', error);
-    return NextResponse.json({ error: error.message || 'Sunucu hatası' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Server error' }, { status: 500 });
   }
 }
