@@ -55,7 +55,6 @@ export async function POST(req: Request) {
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-5',
       max_tokens: 2000,
-      temperature: 0.2,
       system: ANALYSIS_SYSTEM_PROMPT,
       messages: [
         {
