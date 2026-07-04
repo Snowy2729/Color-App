@@ -62,7 +62,9 @@ export async function POST(req: Request) {
           maxItems: 3,
           excludePinnedPosts: true,
           shouldDownloadVideos: false,
-          shouldDownloadCovers: false,
+          // Store covers in Apify's key-value store: TikTok CDN cover links
+          // expire, the Apify-stored copies do not (proxy-image authenticates).
+          shouldDownloadCovers: true,
         }),
       }
     );
