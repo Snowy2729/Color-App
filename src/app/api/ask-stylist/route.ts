@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import Anthropic from '@anthropic-ai/sdk';
+import { formatSeasonReference } from '@/lib/color-analysis';
 
 export async function POST(req: Request) {
   try {
@@ -43,11 +44,8 @@ export async function POST(req: Request) {
 - Skin Undertone: ${analysis.undertone}
 - Contrast Level: ${analysis.contrast}
 
-IMPORTANT REFERENCE (Rules per Season):
-- Spring (Warm/Light): Avoid: Pure black (#101010), Cool pastels (#E8D9E4). Ideal colors: Coral, Peach, Warm green.
-- Summer (Cool/Light): Avoid: Orange-yellow (#F2A623), Brick (#B5541F). Ideal colors: Dusty rose, Plum, Lavender, Gray-blue.
-- Autumn (Warm/Deep): Avoid: Pure white (#F5F5F5), Cool pastels (#C9B8D8). Ideal colors: Brick, Terracotta, Mustard, Olive green.
-- Winter (Cool/Deep): Avoid: Honey (#C98A3D), Mustard (#8A6D2F). Ideal colors: Pure Black, White, Blue-based red, Emerald green, Pure Silver.
+IMPORTANT REFERENCE:
+${formatSeasonReference(analysis.season_type)}
 
 The user is asking whether these colors suit them (HEX codes):
 ${colors.join(', ')}

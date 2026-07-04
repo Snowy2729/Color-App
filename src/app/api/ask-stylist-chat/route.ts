@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import Anthropic from '@anthropic-ai/sdk';
+import { formatSeasonReference } from '@/lib/color-analysis';
 
 export async function POST(req: Request) {
   try {
@@ -44,11 +45,8 @@ USER PROFILE:
 - Skin Undertone: ${analysis.undertone}
 - Contrast Level: ${analysis.contrast}
 
-IMPORTANT REFERENCE (Rules per Season):
-- Spring: Avoid: Pure black, Cool pastels. Ideal: Coral, Peach, Warm green.
-- Summer: Avoid: Orange-yellow, Brick. Ideal: Dusty rose, Plum, Lavender, Gray-blue.
-- Autumn: Avoid: Pure white, Cool pastels. Ideal: Brick, Terracotta, Mustard, Olive green.
-- Winter: Avoid: Honey, Mustard. Ideal: Pure Black, White, Blue-based red, Emerald green, Pure Silver.
+IMPORTANT REFERENCE:
+${formatSeasonReference(analysis.season_type)}
 
 VERY IMPORTANT RULE:
 If the user asks about anything UNRELATED to clothing, outfits, colors, style, fashion or makeup shades (for example politics, software, medicine, daily news, etc.), DO NOT answer it. Politely decline in a fun tone, for example: "Sorry, I'm a style consultant. I can only answer questions about fashion, your color palette and your style 👗✨". Never engage with non-fashion topics.

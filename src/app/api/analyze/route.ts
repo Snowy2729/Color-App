@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { ANALYSIS_SYSTEM_PROMPT, ANALYSIS_USER_PROMPT, getSeasonProfile } from '@/lib/color-analysis';
 
 
 
@@ -50,11 +51,12 @@ export async function POST(req: Request) {
     const extension = filePath.split('.').pop()?.toLowerCase();
     const mediaType = extension === 'png' ? 'image/png' : 'image/jpeg';
 
-    // 3. Send to the Claude API
+    // 3. Send to the Claude API with the full 12-season methodology
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-5',
-      max_tokens: 1024,
-      system: 'You are an expert personal color analyst. Look at the user\'s face and analyze their skin undertone (warm, cool, neutral), contrast (high, low) and which of the 12 season types they belong to (e.g. Deep Autumn, Light Spring). Return ONLY a valid JSON object with no extra text or markdown (```json).',
+      max_tokens: 2000,
+      temperature: 0.2,
+      system: ANALYSIS_SYSTEM_PROMPT,
       messages: [
         {
           role: 'user',
@@ -69,7 +71,7 @@ export async function POST(req: Request) {
             },
             {
               type: 'text',
-              text: 'Analyze this photo and return JSON in exactly this format: {"undertone": "warm|cool|neutral", "contrast": "high|low", "season_type": "Season Type"}'
+              text: ANALYSIS_USER_PROMPT
             }
           ]
         }
@@ -85,27 +87,46 @@ export async function POST(req: Request) {
     let analysisResult;
     try {
       // Strip markdown fences in case Claude wraps the JSON
-      const rawText = textContent.text.replace(/```json/g, '').replace(/```/g, '').trim();
+      let rawText = textContent.text.replace(/```json/g, '').replace(/```/g, '').trim();
+      const match = rawText.match(/\{[\s\S]*\}/);
+      if (match) rawText = match[0];
       analysisResult = JSON.parse(rawText);
     } catch (e) {
       console.error('JSON parse error:', textContent.text);
       return NextResponse.json({ error: 'Could not understand the AI analysis result' }, { status: 500 });
     }
 
-    // 5. Save the analysis to the database
-    const { data: dbResult, error: dbError } = await supabaseAdmin
+    // Normalize the season to a canonical name from the knowledge base
+    const profile = getSeasonProfile(analysisResult.season_type);
+    const seasonType = profile?.name || analysisResult.season_type;
+
+    // 5. Save the analysis to the database (details column is optional,
+    // fall back to the base columns if the migration hasn't run yet)
+    const baseRow = {
+      user_id: user.id,
+      photo_storage_path: filePath,
+      season_type: seasonType,
+      undertone: analysisResult.undertone,
+      contrast: analysisResult.contrast
+    };
+
+    let dbResult = null;
+    let dbError = null;
+    ({ data: dbResult, error: dbError } = await supabaseAdmin
       .from('analyses')
-      .insert({
-        user_id: user.id,
-        photo_storage_path: filePath,
-        season_type: analysisResult.season_type,
-        undertone: analysisResult.undertone,
-        contrast: analysisResult.contrast
-      })
+      .insert({ ...baseRow, details: analysisResult })
       .select('id')
-      .single();
+      .single());
 
     if (dbError) {
+      ({ data: dbResult, error: dbError } = await supabaseAdmin
+        .from('analyses')
+        .insert(baseRow)
+        .select('id')
+        .single());
+    }
+
+    if (dbError || !dbResult) {
       console.error('DB Insert error:', dbError);
       return NextResponse.json({ error: 'Could not save the analysis' }, { status: 500 });
     }

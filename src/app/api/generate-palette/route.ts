@@ -2,8 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import Anthropic from '@anthropic-ai/sdk';
-
-
+import { formatSeasonReference } from '@/lib/color-analysis';
 
 export async function POST(req: Request) {
   try {
@@ -33,7 +32,7 @@ export async function POST(req: Request) {
       .from('analyses')
       .select('*')
       .eq('id', analysisId)
-      .single();
+      .single() as { data: any; error: any };
 
     if (analysisError || !analysis) {
       return NextResponse.json({ error: 'Analysis not found' }, { status: 404 });
@@ -57,17 +56,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, analysis, palettes: existingPalettes, isSubscribed });
     }
 
-    // 2. Ask Claude to generate the palette
+    // 2. Ask Claude to generate the palette, anchored to the season's knowledge base
     const prompt = `The user's color analysis results:
 - Skin undertone: ${analysis.undertone}
 - Contrast level: ${analysis.contrast}
 - Season type: ${analysis.season_type}
+${analysis.details?.features ? `- Observed features: skin: ${analysis.details.features.skin}; eyes: ${analysis.details.features.eyes}; hair: ${analysis.details.features.hair}` : ''}
 
-Please generate a total of 20 color codes (in HEX format) that best match these traits.
+${formatSeasonReference(analysis.season_type)}
+
+Please generate a total of 20 color codes (in HEX format) that best match this profile.
+Use the season profile above as your foundation: stay within its color direction (hue, value, chroma),
+you may include some of its best colors and harmonious variations of them, and never suggest anything
+close to its "colors to avoid".
 The categories must be:
 - 10 "clothing" colors
-- 5 "makeup" colors
-- 5 "hair" (hair dye) colors
+- 5 "makeup" colors (respect the makeup guidance)
+- 5 "hair" (hair dye) colors (respect the hair guidance)
 
 Respond ONLY with JSON in exactly this format, no other words:
 [
